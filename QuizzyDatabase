@@ -1,0 +1,53 @@
+package tronbox.controller;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class QuizzyDatabase extends SQLiteOpenHelper {
+
+    public QuizzyDatabase(Context context, String name, CursorFactory factory,
+                          int version) {
+        super(context, name, factory, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String tableQuery1="create table QUIZDATA( "
+                + "id"
+                + " integer primary key autoincrement,"
+                + "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text,CHAP_NAME text, CHAP_IMG_PATH text); ";
+
+        db.execSQL(tableQuery1);
+
+    }
+
+    public void insertUpdates(String CATAGORY,String CATAGORY_NAME,String CATAGORY_IMG_PATH,String CHAP_ID, String CHAP_NAME, String CHAP_IMG_PATH) {
+        ContentValues cv = new ContentValues();
+        cv.put("CATAGORY", CATAGORY);
+        cv.put("CATAGORY_NAME", CATAGORY_NAME);
+        cv.put("CATAGORY_IMG_PATH", CATAGORY_IMG_PATH);
+        cv.put("CHAP_ID", CHAP_ID);
+        cv.put("CHAP_NAME", CHAP_NAME);
+        cv.put("CHAP_IMG_PATH", CHAP_IMG_PATH);
+
+        getWritableDatabase().insert("QUIZDATA", null, cv);
+    }
+
+    public Cursor getUpdates() {
+
+        Cursor c = getWritableDatabase().rawQuery("select * from QUIZDATA", null);
+
+        return c;
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+
+
+    }
+
+}
