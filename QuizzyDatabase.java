@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-
+//
 public class QuizzyDatabase extends SQLiteOpenHelper {
 	
 	public QuizzyDatabase(Context context, String name, CursorFactory factory,
