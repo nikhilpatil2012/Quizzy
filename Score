@@ -1,0 +1,62 @@
+package tronbox.arena;
+
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Score implements Parcelable{
+
+     private String qid, time, score;
+
+    public Score(String qid, String time, String score){
+        this.qid = qid;
+        this.time = time;
+        this.score = score;
+    }
+
+    public String getQid() {
+        return qid;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    private Score(Parcel in) {
+        // This order must match the order in writeToParcel()
+        qid = in.readString();
+        time = in.readString();
+        score = in.readString();
+
+        // Continue doing this for the rest of your member data
+    }
+
+    public void writeToParcel(Parcel out, int flags) {
+        // Again this order must match the Question(Parcel) constructor
+        out.writeString(qid);
+        out.writeString(time);
+        out.writeString(score);
+
+        // Again continue doing this for the rest of your member data
+    }
+
+    // Just cut and paste this for now
+    public int describeContents() {
+        return 0;
+    }
+
+    // Just cut and paste this for now
+    public static final Parcelable.Creator<Score> CREATOR = new Parcelable.Creator<Score>() {
+        public Score createFromParcel(Parcel in) {
+            return new Score(in);
+        }
+
+        public Score[] newArray(int size) {
+            return new Score[size];
+        }
+    };
+}
