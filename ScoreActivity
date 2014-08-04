@@ -1,0 +1,240 @@
+package tronbox.arena;
+
+import java.util.ArrayList;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
+
+import tronbox.social.R;
+
+import tronbox.welcome.QuizzyApplication;
+
+public class ScoreActivity extends Activity {
+	
+	private RelativeLayout container;
+	private LayoutInflater inf ;
+	private GridView gv;
+	private DisplayMetrics MAT;
+	private static TextView text;
+	
+	private FinalGraph graph;
+	
+	private String nameOfFirstPlayer,nameOfSecondPlayer;
+	private int[] firstPlayerScore,secondPlayerScore;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_score);
+		
+		getActionBar().hide();
+		
+		nameOfFirstPlayer =  "Tushar Agarwal";
+		nameOfSecondPlayer = "Nikhil Patil";
+		firstPlayerScore = new int[10];
+		secondPlayerScore = new int[]{0,45,12,15,16,7,0,10,19,10};
+
+        Bundle b = getIntent().getExtras();
+        if(b !=null)
+        {
+            ArrayList<Score> data = b.getParcelableArrayList("DATA");
+
+            for(int i=0;i<data.size();i++)
+            {
+                Score c = (Score)data.get(i);
+
+                Log.w("DEMO", "D1::"+c.getQid());
+                Log.w("DEMO", "D2::"+c.getTime());
+                Log.w("DEMO", "D3::"+c.getScore());
+
+                firstPlayerScore[i] = Integer.valueOf(c.getScore());
+            }
+
+            // flush the data
+
+            QuizzyApplication.scoreList.clear();
+
+            Log.w("DEMO", "SIZE :: "+data.size());
+        }
+
+		init();
+		
+
+		
+		/**
+		 * Bundle values required
+		 * 
+		 * 
+		 * 1. Score of first player
+		 * 
+		 * 2. Score of second player
+		 * 
+		 * 3. Name of first player
+		 * 
+		 * 4. Name of second player
+		 * 
+		 * 
+		 */
+
+	}
+	
+	private void init()
+	{
+		container = (RelativeLayout)findViewById(R.id.container);
+		MAT = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(MAT);
+		
+		
+		inf = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		View v = inf.inflate(R.layout.scoregrod, null);
+		gv = (GridView)v.findViewById(R.id.grid);
+		gv.setAdapter(new CustomBaseAdapter());
+		gv.setPadding((MAT.widthPixels*5)/100, 0, (MAT.widthPixels*5)/100,0);
+		v.setId(Integer.parseInt("111"));
+		
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, (MAT.heightPixels*18)/100);
+		params.addRule(RelativeLayout.BELOW,R.id.nameplayer1);
+		
+		LayoutParams params1 = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		params1.addRule(RelativeLayout.BELOW,111);
+		
+		
+		View v1 = inf.inflate(R.layout.nameline, null);
+		v1.setId(Integer.parseInt("112"));
+		((TextView)findViewById(R.id.player)).setText(nameOfFirstPlayer);
+		
+		((TextView)v1.findViewById(R.id.player)).setText(nameOfSecondPlayer);
+		
+		
+		graph = new FinalGraph(getApplicationContext(), firstPlayerScore, secondPlayerScore);
+		
+		LayoutParams params2 = new LayoutParams(LayoutParams.MATCH_PARENT, (MAT.heightPixels*30)/100);
+		params2.addRule(RelativeLayout.BELOW,112);
+		
+		container.addView(v, params);
+		container.addView(v1, params1);
+		container.addView(graph, params2);
+
+	}
+	
+	class CustomBaseAdapter extends BaseAdapter
+	{
+		int pos;
+		@Override
+		public int getCount() {
+			
+			return 33;
+		}
+
+		@Override
+		public Object getItem(int arg0) {
+			
+			return null;
+		}
+
+		@Override
+		public long getItemId(int arg0) {
+			
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			convertView = inf.inflate(R.layout.scoreframe, null);
+			
+			text = (TextView)convertView.findViewById(R.id.score);
+			
+			//add score of first player
+			if(position<=9)
+			{
+				
+				text.setText(""+firstPlayerScore[position]);
+				if(firstPlayerScore[position]==0)
+				{
+					text.setBackgroundColor(Color.RED);
+				}
+				else
+				{
+					text.setBackgroundColor(Color.GREEN);
+				}
+			}
+			
+			//add score total of first player
+			if(position == 10)
+			{
+				int sum = 0;
+				for(int i=0;i<firstPlayerScore.length;i++)
+				{
+					sum = sum + firstPlayerScore[i];
+				}
+				text.setText(""+sum);	
+			}
+			
+			//add question numbers
+			if(position>10 && position <21)
+			{
+				text.setText(""+(pos+1));
+				//text.setTextAppearance(getApplicationContext());
+				text.setTextColor(Color.WHITE);
+				text.setBackgroundColor(Color.BLACK);
+				pos++;
+			}
+			
+			//make invisible useless grid
+			if(position == 21)
+			{
+				text.setVisibility(View.INVISIBLE);
+			}
+			
+			//add score of second player
+			if(position>21 && position <32)
+			{
+				text.setText(""+secondPlayerScore[position-22]);
+				
+				if(secondPlayerScore[position-22]==0)
+				{
+					text.setBackgroundColor(Color.RED);
+				}
+				else
+				{
+					text.setBackgroundColor(Color.GREEN);
+				}
+			}
+
+			//add score total of second player
+			if(position == 32)
+			{
+				int sum = 0;
+				for(int i=0;i<secondPlayerScore.length;i++)
+				{
+					sum = sum + secondPlayerScore[i];
+				}
+				text.setText(""+sum);		
+			}
+			
+			text.setLayoutParams(new android.widget.FrameLayout.LayoutParams((MAT.widthPixels*7)/100, (((MAT.heightPixels*18)/100)*20)/100));
+			
+			android.widget.AbsListView.LayoutParams params = new android.widget.AbsListView.LayoutParams(android.widget.AbsListView.LayoutParams.MATCH_PARENT ,(MAT.heightPixels*6)/100); 
+			convertView.setLayoutParams(params);
+			
+			
+		    return convertView;
+		}
+		
+	}
+	
+}
