@@ -50,7 +50,14 @@ public class ScoreActivity extends Activity {
         if(b !=null)
         {
             ArrayList<Score> data = b.getParcelableArrayList("DATA");
-
+            
+            //calling service to save data on server
+            //000007343 --> user_code
+            //GAM000000014 --> game_code
+            //get score string using method getScoreString(ArrayList<Score> list)
+            
+	    new ScoreSender(getApplicationContext()).execute("000007343","GAM000000014",getScoreString(data));	
+	    
             for(int i=0;i<data.size();i++)
             {
                 Score c = (Score)data.get(i);
@@ -88,6 +95,24 @@ public class ScoreActivity extends Activity {
 		 * 
 		 */
 
+	}
+	
+	private String getScoreString(ArrayList<Score> list)
+	{
+		StringBuilder builder = new StringBuilder();
+		for(int i=0;i<list.size();i++)
+		{
+			Score c = (Score)list.get(i);
+			if(i==0)
+			{
+				builder.append(c.getQid()+"~"+c.getTime()+"~"+c.getScore());
+			}
+			else
+			{
+				builder.append(":"+c.getQid()+"~"+c.getTime()+"~"+c.getScore());
+			}
+		}
+		return builder.toString();
 	}
 	
 	private void init()
