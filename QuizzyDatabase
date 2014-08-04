@@ -1,4 +1,4 @@
-package tronbox.controller;
+package ideapot.quizzy.controller;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,10 +21,10 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 				+ " integer primary key autoincrement,"
 				+ "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text,CHAP_NAME text, CHAP_IMG_PATH text); ";
 
-		String scoreTable="create table SCOREDATA( "
+		String scoreTable="create table SCOREDATA("
 				+ "id"
 				+ " integer primary key autoincrement,"
-				+ "CATAGORY text,CHAP_ID text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, INCORRECT_QUES text); ";
+				+ "CATAGORY text,CATAGORY_NAME text,CHAP_ID text,CHAP_NAME text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, INCORRECT_QUES text); ";
 
 		db.execSQL(dataTable);
 		db.execSQL(scoreTable);
@@ -42,10 +42,12 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 		getWritableDatabase().insert("QUIZDATA", null, cv);
 	}
 
-	public void insertUpdatesSCOREDATA(String CATAGORY,String CHAP_ID,String GLOBAL_RANK,String TOTAL_SCORE, String CORRECT_QUES, String INCORRECT_QUES) {
+	public void insertUpdatesSCOREDATA(String CATAGORY,String CATAGORY_NAME,String CHAP_ID,String CHAP_NAME,String GLOBAL_RANK,String TOTAL_SCORE, String CORRECT_QUES, String INCORRECT_QUES) {
 		ContentValues cv = new ContentValues();
 		cv.put("CATAGORY", CATAGORY);
+		cv.put("CATAGORY_NAME", CATAGORY_NAME);
 		cv.put("CHAP_ID", CHAP_ID);
+		cv.put("CHAP_NAME", CHAP_NAME);
 		cv.put("GLOBAL_RANK", GLOBAL_RANK);
 		cv.put("TOTAL_SCORE", TOTAL_SCORE);
 		cv.put("CORRECT_QUES", CORRECT_QUES);
