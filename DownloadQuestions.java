@@ -127,6 +127,9 @@ public class DownloadQuestions extends AsyncTask<String, Void, String>{
         } catch (Exception e) {
             cancel(true);
         }
+        
+        
+        result = result+"@@@"+params[0]+"@@@"+params[1];
 
         return result;
     }
@@ -134,9 +137,18 @@ public class DownloadQuestions extends AsyncTask<String, Void, String>{
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-
-
-        ((GameArena)context).renderQuestions(result);
+        String[] data = null;
+         try {
+             
+             data= result.split("@@@");
+            
+            new MessageSender().execute("000007343", "000007343", "FIGHT@" + data[3] + "@" + data[2] + "@" + data[1]);
+            
+        }catch (Exception e)
+        {
+            cancel(true);
+        }
+        ((GameArena)context).renderQuestions(data[0]);
 
     }
 
