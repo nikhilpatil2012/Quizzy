@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".MyActivity">
+
+
+    <TextView
+        android:id="@+id/centertext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You Can"
+        android:textColor="#ffffff"
+        android:textSize="60sp"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        />
+    <TextView
+        android:id="@+id/msgloading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Challenging Tushar..."
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:layout_above="@id/centertext"
+        android:layout_marginBottom="30dp"
+        />
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/webView"
+        android:layout_marginTop="30dp"
+        android:layout_above="@id/msgloading"
+        android:layout_marginBottom="15dp"
+        />
+
+    <Button
+        android:id="@+id/game"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Start Game"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/button"
+        android:layout_below="@id/centertext"
+        />
+
+    <TextView
+        android:id="@+id/footermsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Tushar will catch you later"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:layout_below="@id/game"
+        />
+</RelativeLayout>
