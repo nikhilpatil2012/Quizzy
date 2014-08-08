@@ -1,0 +1,94 @@
+package tronbox.networking;
+
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+
+import tronbox.welcome.MasterHomeScreen;
+import tronbox.welcome.QuizzyApplication;
+
+public class SubjectImagesHandler extends Handler{
+
+    private Context context;
+
+    public SubjectImagesHandler(Looper looper, Context context){
+        super(looper);
+
+        this.context = context;
+    }
+
+    @Override
+    public void handleMessage(Message msg) {
+
+         Bundle data = msg.getData();
+         String link = data.getString("url");
+         String name = data.getString("name");
+
+        try {
+
+            java.net.URL url = new java.net.URL(link);
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            SaveImage(myBitmap, name);
+
+            if(data.containsKey("meta")){
+
+                String meta = data.getString("meta");
+
+                if(meta.equals("last")){
+
+                    QuizzyApplication.DownloadOver = true;
+                    context.sendBroadcast(new Intent().setAction("DOWNLOAD_OVER"));
+
+                    Log.w("Last Image Downloaded", "Last Image Downloaded");
+
+                }
+            }
+
+
+            Log.w("Image Downloaded", "Image Downloaded "+name);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void SaveImage(Bitmap finalBitmap, String name) {
+
+        try {
+
+            FileOutputStream out1  = context.openFileOutput(name, Context.MODE_PRIVATE);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            byte[] buffer = bos.toByteArray();
+            out1.write(buffer, 0, buffer.length);
+            out1.close();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+}
