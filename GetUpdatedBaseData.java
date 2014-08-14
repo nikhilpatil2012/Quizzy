@@ -268,7 +268,7 @@ public class GetUpdatedBaseData extends AsyncTask<String,Void,String>{
                             }
                             else
                             {
-                                updateAcivity.sendBroadcast(new Intent("UPDATE_ACTIVITY"));
+                                updateAcivity.sendBroadcast(new Intent("DOWNLOAD_OVER"));
                             }
 
 
