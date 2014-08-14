@@ -35,7 +35,7 @@ public class UpdateActivity extends Activity {
                 finish();
             }
         };
-        registerReceiver(broadcastReceiver,new IntentFilter("UPDATE_ACTIVITY"));
+        registerReceiver(broadcastReceiver,new IntentFilter("DOWNLOAD_OVER"));
     }
 
     @Override
