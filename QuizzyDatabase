@@ -16,11 +16,10 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String dataTable="create table QUIZDATA( "
-				+ "id"
-				+ " integer primary key autoincrement,"
-				+ "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text,CHAP_NAME text, CHAP_IMG_PATH text); ";
-
+	String dataTable="create table QUIZDATA( "
+                + "id"
+                + " integer primary key autoincrement,"
+                + "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text not null UNIQUE,CHAP_NAME text, CHAP_IMG_PATH text); ";
 		String scoreTable="create table SCOREDATA("
 				+ "id"
 				+ " integer primary key autoincrement,"
@@ -113,5 +112,10 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 		
 		
 	}
+	
+	public Cursor getListOfChaptersInCatagory(String CATAGORY_VAL)
+    	{
+        	return getWritableDatabase().query("QUIZDATA",new String[]{"CHAP_ID","CHAP_NAME"},"CATAGORY "+"=?",new String[]{CATAGORY_VAL},null,null,null,null);
+    	}
 	
 }
