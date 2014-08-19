@@ -1,0 +1,124 @@
+
+    <FrameLayout
+        android:alpha="0"
+        android:id="@+id/timer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_gravity="left|center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <ImageView
+                android:id="@+id/player_1_pic"
+                android:background="@drawable/circle_photo_bg"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+
+
+            <LinearLayout
+                android:layout_marginLeft="3dp"
+                android:layout_margin="3dp"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+
+
+                <TextView
+                    android:textColor="#ffffff"
+                    android:id="@+id/player_1_name"
+                    android:text="Nikhil"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/player_1_level"
+                    android:textColor="#ffffff"
+                    android:textAlignment="textStart"
+                    android:text="Newbee"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_gravity="right|center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_marginRight="3dp"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    >
+
+
+                    <TextView
+                        android:textColor="#ffffff"
+                        android:id="@+id/player_2_name"
+                        android:text="Nikhil"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+
+                    <TextView
+                        android:id="@+id/player_2_level"
+                        android:textColor="#ffffff"
+                        android:textAlignment="textEnd"
+                        android:text="Newbee"
+                        android:textSize="15dp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+
+
+                <ImageView
+                    android:id="@+id/player_2_pic"
+                    android:background="@drawable/circle_photo_bg"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        </FrameLayout>
