@@ -122,3 +122,30 @@
         </LinearLayout>
 
         </FrameLayout>
+        
+        
+        
+        
+        
+    public static Bitmap imageCircleClip(Bitmap sourceBitmap){
+
+        int targetWidth = 100;
+        int targetheight = 100;
+
+        Bitmap outputBitmap = Bitmap.createBitmap(targetWidth, targetheight, Bitmap.Config.ARGB_8888);
+
+        Path path = new Path();
+        path.addCircle(targetWidth/2, targetheight/2, targetWidth/2, Path.Direction.CCW);
+
+        Canvas canvas = new Canvas(outputBitmap);
+        canvas.clipPath(path);
+
+        Rect src = new Rect(0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight());
+        Rect out = new Rect(0, 0, targetWidth, targetheight);
+
+        Bitmap source = sourceBitmap;
+
+        canvas.drawBitmap(source, src, out, null);
+
+        return outputBitmap;
+    }
