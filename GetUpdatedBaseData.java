@@ -214,6 +214,7 @@ public class GetUpdatedBaseData extends AsyncTask<String,Void,String>{
                             if(!(subObj.getString("CHAP_NAME").equalsIgnoreCase(cat+"_CHAPTER")))
                             {
                                 database.insertUpdatesQUIZDATA(catid, cat, "http://www.talentseal.com/" + catimgpath.substring(2, catimgpath.length()), subObj.getString("CHAP_ID"), subObj.getString("CHAP_NAME"), "http://www.talentseal.com/" + subObj.getString("CHAP_IMG_PATH").substring(2, subObj.getString("CHAP_IMG_PATH").length()));
+                                database.insertUpdatesSCOREDATA(catid,cat,subObj.getString("CHAP_ID"),subObj.getString("CHAP_NAME"),"0","0","0","0");
                             }
 
                             if(listofData.contains(subObj.getString("CHAP_ID")+".png"))
