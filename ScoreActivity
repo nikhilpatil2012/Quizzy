@@ -1,5 +1,7 @@
 package tronbox.arena;
 
+package dev.ideapot.quizzy;
+
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -58,6 +60,11 @@ import dev.support.Score;
  * 9. Catagory CATAGORY
  *
  * 10.Chap_id CHAP_ID
+ *
+ * 11.UserImage ="UserImage"
+ *
+ * 12.ChallengerImage="ChallengerImage"
+ * 
  */
 
 
