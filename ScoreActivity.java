@@ -81,7 +81,7 @@ public class ScoreActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scoring_dynamic_view);
 
-        database = new QuizzyDatabase(getApplicationContext(),"QUIZY",null,1);
+        database = new QuizzyDatabase(getApplicationContext(),"QUIZZY",null,1);
 
         actionBar = getActionBar();
 
