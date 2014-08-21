@@ -210,7 +210,7 @@ public class ScoreActivity extends Activity {
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.base_view);
 
         bar = (ProgressBar)findViewById(R.id.level_progress_bar);
-        bar.setMax(100);
+        bar.setMax(2000);
 
 
 
