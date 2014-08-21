@@ -93,7 +93,7 @@ public class ScoreActivity extends Activity {
             firstPlayerScore = new int[10];
             secondPlayerScore = new int[10];
 
-            if(data1 != null)
+            if((data1 != null) && (data1.size() == 10))
             {
                 for (int i = 0; i < data1.size(); i++) {
                     Score c = (Score) data1.get(i);
@@ -101,7 +101,8 @@ public class ScoreActivity extends Activity {
                 }
             }
 
-            if(data2 != null)
+
+            if( (data2 != null) && (data2.size() == 10))
             {
                 for (int i = 0; i < data2.size(); i++) {
                     Score c = (Score) data2.get(i);
