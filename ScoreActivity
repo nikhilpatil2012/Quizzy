@@ -1,8 +1,10 @@
 package tronbox.arena;
+
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -29,33 +31,40 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import dev.database.QuizzyDatabase;
-import dev.networking.ScoreSender;
-import dev.support.Score;
+import tronbox.controller.QuizzyDatabase;
+import tronbox.social.R;
+import tronbox.welcome.MasterHomeScreen;
+
 
 /**
  * Bundle values required
  *
  *
- * 1. Score of first player P1_SCORE
+ * 1. Score of first player
  *
- * 2. Score of second player P2_SCORE
+ * 2. Score of second player
  *
- * 3. Name of first player P1_NAME
+ * 3. Name of first player
  *
- * 4. Name of second player P2_NAME
+ * 4. Name of second player
  *
- * 5. game_code GAME_CODE
+ * 5. game_code
  *
- * 6. user_code USER_CODE
+ * 6. user_code
  *
- * 7. p1_title P1_TITLE
+ * 7. p1_title
  *
- * 8. p2_title P2_TITLE
+ * 8. p2_title
  *
- * 9. Catagory CATAGORY
+ * 9. CATAGORY
  *
- * 10.Chap_id CHAP_ID
+ * 10.CHAP_ID
+ *
+ * 11. userImage == "UserImage"
+ *
+ * 12. challengerImage == "ChallengerImage"
+ *
+ *
  */
 
 
@@ -76,7 +85,7 @@ public class ScoreActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.scoring_dynamic_view);
+        setContentView(R.layout.score_dynamic_view);
 
         database = new QuizzyDatabase(getApplicationContext(),"QUIZZY",null,1);
 
@@ -87,8 +96,25 @@ public class ScoreActivity extends Activity {
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
+
             ArrayList<Score> data1 = b.getParcelableArrayList("P1_SCORE");
             ArrayList<Score> data2 = b.getParcelableArrayList("P2_SCORE");
+
+
+            for(Score s : data1){
+
+                Log.w("CheckScoreeeee", "Score = "+s.getScore()+"\nTime = "+s.getTime());
+
+            }
+
+
+            for(Score s : data2){
+
+                Log.w("FakeScoreeeee", "Score = "+s.getScore()+"\nTime = "+s.getTime());
+
+            }
+
+
 
             p1_name = b.getString("P1_NAME");
             p2_name = b.getString("P2_NAME");
@@ -132,8 +158,8 @@ public class ScoreActivity extends Activity {
 
             //new ScoreSender(getApplicationContext()).execute("000007343", "GAM000000014", getScoreString(data1));
 
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeResource(getResources(), R.drawable.sunny),"#db2121"));
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeResource(getResources(), R.drawable.sunny),"#01e04a"));
+            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeResource(getResources(), R.drawable.james),"#db2121"));
+            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeResource(getResources(), R.drawable.james),"#01e04a"));
 
             if((b.getString("USER_CODE")!=null) && (b.getString("GAME_CODE")!=null) && (data1 != null))
             {
@@ -178,7 +204,11 @@ public class ScoreActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-               Log.w("DEMO", "back to home");
+
+                Intent intent = new Intent(getApplicationContext(), MasterHomeScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
 
 
             }
@@ -200,21 +230,21 @@ public class ScoreActivity extends Activity {
     private void init()
     {
 
-       int CORRECT_QUES = 0;
-            for (int aSecondPlayerScore : secondPlayerScore) {
-                player_2_score = player_2_score + aSecondPlayerScore;
+        int CORRECT_QUES = 0;
+        for (int aSecondPlayerScore : secondPlayerScore) {
+            player_2_score = player_2_score + aSecondPlayerScore;
+        }
+
+        for (int aFirstPlayerScore : firstPlayerScore) {
+
+            if(aFirstPlayerScore > 0)
+            {
+                CORRECT_QUES++;
             }
 
-            for (int aFirstPlayerScore : firstPlayerScore) {
+            player_1_score = player_1_score + aFirstPlayerScore;
 
-                if(aFirstPlayerScore > 0)
-                {
-                    CORRECT_QUES++;
-                }
-
-                player_1_score = player_1_score + aFirstPlayerScore;
-
-            }
+        }
 
         //performs the database updations in local database
         databaseOperations(CORRECT_QUES,player_1_score);
@@ -258,7 +288,7 @@ public class ScoreActivity extends Activity {
         finalGraph.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,(MAT.heightPixels*40)/100));
 
 
-        View v = getLayoutInflater().inflate(R.layout.scoregrid, null);
+        View v = getLayoutInflater().inflate(R.layout.scoregrod, null);
 
         View v1 = getLayoutInflater().inflate(R.layout.nameline,null);
 
@@ -473,4 +503,3 @@ public class ScoreActivity extends Activity {
     }
 
 }
-
