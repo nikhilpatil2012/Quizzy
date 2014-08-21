@@ -209,7 +209,7 @@ public class ScoreActivity extends Activity {
 
             for (int aFirstPlayerScore : firstPlayerScore) {
 
-                if(CORRECT_QUES > 0)
+                if(aFirstPlayerScore > 0)
                 {
                     CORRECT_QUES++;
                 }
