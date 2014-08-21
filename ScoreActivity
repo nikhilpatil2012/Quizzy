@@ -250,6 +250,11 @@ public class ScoreActivity extends Activity {
         p1_score = (TextView)v11.findViewById(R.id.p_score);
         p2_score = (TextView)v21.findViewById(R.id.p_score);
 
+        p1_score.setTypeface(font);
+        p2_score.setTypeface(font);
+
+
+
         ((TextView)findViewById(R.id.analytics)).setTypeface(font);
 
         TextView t1 = (TextView)v11.findViewById(R.id.p_name);
