@@ -37,25 +37,25 @@ import dev.support.Score;
  * Bundle values required
  *
  *
- * 1. Score of first player
+ * 1. Score of first player P1_SCORE
  *
- * 2. Score of second player
+ * 2. Score of second player P2_SCORE
  *
- * 3. Name of first player
+ * 3. Name of first player P1_NAME
  *
- * 4. Name of second player
+ * 4. Name of second player P2_NAME
  *
- * 5. game_code
+ * 5. game_code GAME_CODE
  *
- * 6. user_code
+ * 6. user_code USER_CODE
  *
- * 7. p1_title
+ * 7. p1_title P1_TITLE
  *
- * 8. p2_title
+ * 8. p2_title P2_TITLE
  *
- * 9. CATAGORY
+ * 9. Catagory CATAGORY
  *
- * 10.CHAP_ID
+ * 10.Chap_id CHAP_ID
  */
 
 
