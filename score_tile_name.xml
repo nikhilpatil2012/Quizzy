@@ -26,7 +26,8 @@
         android:layout_height="wrap_content"
         android:textColor="#ffffff"
         android:gravity="center_horizontal"
-        android:textSize="30sp"
+        android:textSize="35sp"
+        android:textStyle="bold"
         android:id="@+id/p_score" />
 
 </LinearLayout>
