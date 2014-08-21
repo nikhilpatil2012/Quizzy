@@ -38,12 +38,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ProgressBar
+ <ProgressBar
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
+                android:layout_marginRight="35dp"
                 android:id="@+id/level_progress_bar"
                 android:progressDrawable="@drawable/custom_progrssbar"
                 />
@@ -54,7 +55,16 @@
                 android:layout_height="30dp"
                 android:textSize="20sp"
                 android:gravity="center"
+                android:layout_marginRight="35dp"
                 android:textColor="#ffffff"
+                />
+            
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_launcher"
                 />
 
         </FrameLayout>
