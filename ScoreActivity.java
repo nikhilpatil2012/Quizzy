@@ -62,13 +62,13 @@ import dev.support.Score;
 
 public class ScoreActivity extends Activity {
 
-    private GridView gv;
+ //   private GridView gv;
     private static TextView text;
     private ProgressBar bar;
     private int count,player_1_score,player_2_score,LEVEL_PROGRESS;
     private Handler handler;
-    private TextView p1_score,p2_score,level_text,actionBarText,back;
-    private FinalGraph finalGraph;
+    private TextView p1_score,p2_score,level_text;
+   // private FinalGraph finalGraph;
     private int[] firstPlayerScore,secondPlayerScore;
     private String p1_name,p2_name,p1_title,p2_title,CHAP_ID,CATAGORY;
     private DisplayMetrics MAT;
@@ -81,7 +81,7 @@ public class ScoreActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scoring_dynamic_view);
 
-        database = new QuizzyDatabase(getApplicationContext(),"QUIZZY",null,1);
+        database = new QuizzyDatabase(getApplicationContext(),"QUIZY",null,1);
 
         actionBar = getActionBar();
 
@@ -168,12 +168,12 @@ public class ScoreActivity extends Activity {
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
         mCustomView.setLayoutParams(params);
         actionBar.setCustomView(mCustomView);
-        actionBarText = (TextView)mCustomView.findViewById(R.id.nameOfScreen);
+        TextView actionBarText = (TextView)mCustomView.findViewById(R.id.nameOfScreen);
         actionBarText.setText("Scores");
         actionBarText.setTypeface(font);
 
 
-        back = (TextView)mCustomView.findViewById(R.id.back);//
+        TextView back = (TextView)mCustomView.findViewById(R.id.back);//
         back.setText("Home");
         back.setTypeface(font);
 
@@ -258,7 +258,7 @@ public class ScoreActivity extends Activity {
         level_text = (TextView)findViewById(R.id.level_text);
         level_text.setTypeface(font);
 
-        finalGraph = new FinalGraph(getApplicationContext(),firstPlayerScore,secondPlayerScore);
+        FinalGraph finalGraph = new FinalGraph(getApplicationContext(),firstPlayerScore,secondPlayerScore);
         finalGraph.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,(MAT.heightPixels*40)/100));
 
 
@@ -282,7 +282,7 @@ public class ScoreActivity extends Activity {
         t6.setText(p2_name);
         t6.setTypeface(font);
 
-        gv = (GridView)v.findViewById(R.id.grid);
+        GridView gv = (GridView)v.findViewById(R.id.grid);
         gv.setAdapter(new CustomBaseAdapter());
         gv.setPadding((MAT.widthPixels*5)/100, 0, (MAT.widthPixels*5)/100,0);
         gv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (MAT.heightPixels*18)/100));
@@ -473,4 +473,5 @@ public class ScoreActivity extends Activity {
 
         database.close();
     }
+
 }
