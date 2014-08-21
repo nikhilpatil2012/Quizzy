@@ -20,10 +20,10 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
                 + " integer primary key autoincrement,"
                 + "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text not null UNIQUE,CHAP_NAME text, CHAP_IMG_PATH text); ";
 
-        String scoreTable="create table SCOREDATA("
+       String scoreTable="create table SCOREDATA("
                 + "id"
                 + " integer primary key autoincrement,"
-                + "CATAGORY text,CATAGORY_NAME text,CHAP_ID text,CHAP_NAME text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, COUNT text); ";
+                + "CATAGORY text,CATAGORY_NAME text,CHAP_ID text not null UNIQUE,CHAP_NAME text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, COUNT text); ";
 
 
         String friendsTable ="create table FRIENDSDATA("
