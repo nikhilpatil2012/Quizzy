@@ -62,13 +62,11 @@ import dev.support.Score;
 
 public class ScoreActivity extends Activity {
 
- //   private GridView gv;
     private static TextView text;
     private ProgressBar bar;
     private int count,player_1_score,player_2_score,LEVEL_PROGRESS;
     private Handler handler;
     private TextView p1_score,p2_score,level_text;
-   // private FinalGraph finalGraph;
     private int[] firstPlayerScore,secondPlayerScore;
     private String p1_name,p2_name,p1_title,p2_title,CHAP_ID,CATAGORY;
     private DisplayMetrics MAT;
