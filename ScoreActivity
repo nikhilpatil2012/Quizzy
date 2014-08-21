@@ -303,18 +303,23 @@ public class ScoreActivity extends Activity {
         linearLayout.addView(gv);
         linearLayout.addView(v2);
 
+        
         try {
+
         if(player_1_score < player_2_score)
         {
             ((TextView)findViewById(R.id.result)).setText("You Loose");
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#db2121"));//red
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#01e04a"));//green
+
+            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image+".png")),"#db2121"));//red
+            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image+".png")),"#01e04a"));//green
         }
         else
         {
+            Log.w("DEMO",p1_image+ " :: "+p2_image);
             ((TextView)findViewById(R.id.result)).setText("You Won");
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#db2121"));//red
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#01e04a"));//green
+
+            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image+".png")),"#01e04a"));//red
+            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image+".png")),"#db2121"));//green
         }
         } catch (FileNotFoundException e) {
 
@@ -322,6 +327,7 @@ public class ScoreActivity extends Activity {
         {
 
         }
+
 
     }
 
