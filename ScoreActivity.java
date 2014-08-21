@@ -28,8 +28,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import dev.database.QuizzyDatabase;
 import dev.networking.ScoreSender;
 import dev.support.Score;
+
 
 
 /**
@@ -48,11 +50,13 @@ import dev.support.Score;
  *
  * 6. user_code
  *
- * 7. level
+ * 7. p1_title
  *
- * 8. level_progress
+ * 8. p2_title
  *
+ * 9. CATAGORY
  *
+ * 10.CHAP_ID
  */
 
 
@@ -66,15 +70,18 @@ public class ScoreActivity extends Activity {
     private TextView p1_score,p2_score,level_text,actionBarText,back;
     private FinalGraph finalGraph;
     private int[] firstPlayerScore,secondPlayerScore;
-    private String p1_name,p2_name,level,p1_title,p2_title;
+    private String p1_name,p2_name,p1_title,p2_title,CHAP_ID,CATAGORY;
     private DisplayMetrics MAT;
     private ActionBar actionBar;
-
     private Typeface font;
+    private QuizzyDatabase database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scoring_dynamic_view);
+
+        database = new QuizzyDatabase(getApplicationContext(),"QUIZY",null,1);
 
         actionBar = getActionBar();
 
@@ -110,22 +117,6 @@ public class ScoreActivity extends Activity {
                 }
             }
 
-            if(b.getString("LEVEL_PROGRESS") != null)
-            {
-                LEVEL_PROGRESS = Integer.valueOf(b.getString("LEVEL_PROGRESS"));
-            }
-
-            if(b.getString("LEVEL") != null)
-            {
-                level = b.getString("LEVEL");
-            }
-
-
-            if(b.getString("LEVEL") != null)
-            {
-                level = b.getString("LEVEL");
-            }
-
 
             if(b.getString("P1_TITLE") != null)
             {
@@ -152,6 +143,12 @@ public class ScoreActivity extends Activity {
                 new ScoreSender(getApplicationContext()).execute(b.getString("USER_CODE"), b.getString("GAME_CODE"), getScoreString(data1));
             }
 
+            if( (b.getString("CATAGORY") != null) && (b.getString("CHAP_ID")!=null) )
+            {
+                CATAGORY = b.getString("CATAGORY");
+                CHAP_ID = b.getString("CHAP_ID");
+            }
+
             init();
 
             handler = new Handler();
@@ -166,7 +163,7 @@ public class ScoreActivity extends Activity {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         LayoutInflater mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View mCustomView = mInflater.inflate(R.layout.custom_action_bar, null);
+        View mCustomView = mInflater.inflate(R.layout.custom_action_bar_score_activity, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
         mCustomView.setLayoutParams(params);
@@ -193,17 +190,40 @@ public class ScoreActivity extends Activity {
         actionBar.setDisplayShowCustomEnabled(true);
     }
 
+
+    private void databaseOperations(int CORRECT_QUES,int player_1_score)
+    {
+        try
+        {
+            database.updateFullScore(CATAGORY,CHAP_ID,String.valueOf(Integer.valueOf(database.getGlobalRank(CATAGORY,CHAP_ID))),String.valueOf(player_1_score+Integer.valueOf(database.getTotalScore(CATAGORY,CHAP_ID))),String.valueOf(Integer.valueOf(database.getTotalCorrect(CATAGORY,CHAP_ID))+CORRECT_QUES),String.valueOf(1+Integer.valueOf(database.getTotalCount(CATAGORY,CHAP_ID))));
+        }catch (Exception e){
+
+        }
+    }
+
     private void init()
     {
 
+       int CORRECT_QUES = 0;
             for (int aSecondPlayerScore : secondPlayerScore) {
                 player_2_score = player_2_score + aSecondPlayerScore;
             }
 
             for (int aFirstPlayerScore : firstPlayerScore) {
+
+                if(CORRECT_QUES > 0)
+                {
+                    CORRECT_QUES++;
+                }
+
                 player_1_score = player_1_score + aFirstPlayerScore;
+
             }
 
+        //performs the database updations in local database
+        databaseOperations(CORRECT_QUES,player_1_score);
+
+        LEVEL_PROGRESS = Integer.valueOf(database.getTotalScore(CATAGORY,CHAP_ID));
 
         MAT = new DisplayMetrics();
         ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(MAT);
@@ -213,15 +233,11 @@ public class ScoreActivity extends Activity {
         bar = (ProgressBar)findViewById(R.id.level_progress_bar);
         bar.setMax(2000);
 
-
-
         View v11= (View)findViewById(R.id.first_player);
         View v21= (View)findViewById(R.id.second_player);
 
         p1_score = (TextView)v11.findViewById(R.id.p_score);
         p2_score = (TextView)v21.findViewById(R.id.p_score);
-
-
 
         ((TextView)findViewById(R.id.analytics)).setTypeface(font);
 
@@ -335,7 +351,7 @@ public class ScoreActivity extends Activity {
                     if(c == LEVEL_PROGRESS)
                     {
                         ObjectAnimator.ofFloat(level_text,"alpha",0,1).setDuration(500).start();
-                        level_text.setText("Level "+level);
+                        level_text.setText("Level "+database.getTotalScore(CATAGORY,CHAP_ID));
                     }
                 }
 
@@ -344,6 +360,16 @@ public class ScoreActivity extends Activity {
         }
     }
 
+    private int getLevelOfUser(int TOTAL_SCORE)
+    {
+        int count = 1;
+        while((TOTAL_SCORE) >= 0)
+        {
+            TOTAL_SCORE = TOTAL_SCORE -200;
+            count++;
+        }
+        return count;
+    }
 
     class CustomBaseAdapter extends BaseAdapter
     {
@@ -441,5 +467,10 @@ public class ScoreActivity extends Activity {
         return outputBitmap;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+        database.close();
+    }
 }
