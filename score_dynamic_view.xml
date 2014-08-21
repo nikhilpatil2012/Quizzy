@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#000000"
+    >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/base_view"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+
+                <ImageView
+                    android:background="@drawable/circle_photo_bg1"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="left|center_vertical"
+                    android:id="@+id/image_p1" />
+
+                <ImageView
+
+                    android:layout_marginLeft="107dp"
+                    android:layout_marginRight="107dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|center_vertical"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/red_green_line"
+                    android:id="@+id/imageView2" />
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/circle_photo_bg"
+                    android:layout_gravity="right|center_vertical"
+                    android:id="@+id/image_p2" />
+
+            </FrameLayout>
+
+            <FrameLayout
+            android:layout_width="match_parent" android:layout_height="match_parent">
+            <include
+                android:id="@+id/first_player"
+                android:layout_marginLeft="10dp"
+                layout="@layout/score_tile_name"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="left|top"
+                />
+
+            <ImageView
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                android:id="@+id/center"
+                android:src="@drawable/line"
+                android:layout_gravity="center_horizontal|top" />
+
+            <include
+                android:id="@+id/second_player"
+                layout="@layout/score_tile_name"
+                android:layout_marginRight="10dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right|top"
+                />
+
+        </FrameLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="You Won"
+                android:textSize="40sp"
+                android:textColor="#ffffff"
+                android:id="@+id/result"
+                android:gravity="center" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ProgressBar
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="35dp"
+                    android:id="@+id/level_progress_bar"
+                    android:progressDrawable="@drawable/custom_progrssbar"
+                    />
+
+                <TextView
+                    android:id="@+id/level_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_marginRight="35dp"
+                    android:textColor="#ffffff"
+                    />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="right"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/ic_launcher"
+                    />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Analytics"
+                android:id="@+id/analytics"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="25dp"
+                android:textSize="25sp"
+                android:textColor="#ffffff"
+                />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
