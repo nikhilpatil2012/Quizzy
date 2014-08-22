@@ -312,27 +312,47 @@ public class ScoreActivity extends Activity {
         text = ((TextView)findViewById(R.id.result));
         text.setTypeface(Typeface.createFromAsset(getAssets(),"font.ttf"));
 
-        try {
-
         if(player_1_score < player_2_score)
         {
             text.setText("You Loose");
-            ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line));
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image+".png")),"#db2121"));//red
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image+".png")),"#01e04a"));//green
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line));
+                        ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#db2121"));//red
+                        ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#01e04a"));//green
+
+                    } catch (FileNotFoundException e) {
+                        Log.e("DEMOOO","FileNotFoundException block image error :: "+e.getMessage());
+                    }catch (Exception e)
+                    {
+                        Log.e("DEMOOO","Exception block image error :: "+e.getMessage());
+                    }
+                }
+            });
+
         }
         else
         {
-            Log.w("DEMO",p1_image+ " :: "+p2_image);
+        
             text.setText("You Won");
-            ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image+".png")),"#01e04a"));//red
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image+".png")),"#db2121"));//green
-        }
-        } catch (FileNotFoundException e) {
-
-        }catch (Exception e)
-        {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.red_green_line1));
+                        ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#01e04a"));//red
+                        ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#db2121"));//green
+                    } catch (FileNotFoundException e) {
+                        Log.e("DEMOOO","FileNotFoundException block image error :: "+e.getMessage());
+                    }catch (Exception e)
+                    {
+                        Log.e("DEMOOO","Exception block image error :: "+e.getMessage());
+                    }
+                }
+            });
 
         }
 
@@ -390,7 +410,7 @@ public class ScoreActivity extends Activity {
                     if(c < LEVEL_PROGRESS)
                     {
                         bar.setProgress(c);
-                        handler.postDelayed(this,10);
+                        handler.postDelayed(this,2);
                     }
                     if(c == LEVEL_PROGRESS)
                     {
