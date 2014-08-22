@@ -100,8 +100,8 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         return c;
     }
 
-    public boolean updateTotalScore(String CATAGORY,String CHAP_ID, String TOTAL_SCORE) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public boolean updateTotalScore(String CHAP_ID, String TOTAL_SCORE) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rowId = c.getString(0);
         c.close();
@@ -110,8 +110,8 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
-    public boolean updateGlobalRank(String CATAGORY,String CHAP_ID, String GLOBAL_RANK) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public boolean updateGlobalRank(String CHAP_ID, String GLOBAL_RANK) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rowId = c.getString(0);
         c.close();
@@ -121,8 +121,8 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
     }
 
 
-    public boolean updateFullScore(String CATAGORY,String CHAP_ID, String GLOBAL_RANK,String TOTAL_SCORE,String CORRECT_QUES,String COUNT) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public boolean updateFullScore(String CHAP_ID, String GLOBAL_RANK,String TOTAL_SCORE,String CORRECT_QUES,String COUNT) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rowId = c.getString(0);
         c.close();
@@ -134,37 +134,37 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
-    public Cursor getDataSCOREDATA(String CATAGORY,String CHAP_ID) {
-        Cursor c = getWritableDatabase().rawQuery("select * from SCOREDATA where CATAGORY='"+CATAGORY+"' AND CHAP_ID ='"+CHAP_ID+"'", null);
+    public Cursor getDataSCOREDATA(String CHAP_ID) {
+        Cursor c = getWritableDatabase().query( "SCOREDATA", null,"CHAP_ID"+"=?", new String[] { CHAP_ID }, null,null, null, null);
         return c;
     }
 
-    public String getGlobalRank(String CATAGORY,String CHAP_ID) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public String getGlobalRank(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rank = c.getString(c.getColumnIndex("GLOBAL_RANK"));
         c.close();
         return rank;
     }
 
-    public String getTotalScore(String CATAGORY,String CHAP_ID) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public String getTotalScore(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rank = c.getString(c.getColumnIndex("TOTAL_SCORE"));
         c.close();
         return rank;
     }
 
-    public String getTotalCount(String CATAGORY,String CHAP_ID) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public String getTotalCount(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rank = c.getString(c.getColumnIndex("COUNT"));
         c.close();
         return rank;
     }
 
-    public boolean updateTotalCount(String CATAGORY,String CHAP_ID, String COUNT) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public boolean updateTotalCount(String CHAP_ID, String COUNT) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rowId = c.getString(0);
         c.close();
@@ -173,16 +173,16 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
-    public String getTotalCorrect(String CATAGORY,String CHAP_ID) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public String getTotalCorrect(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rank = c.getString(c.getColumnIndex("CORRECT_QUES"));
         c.close();
         return rank;
     }
 
-    public boolean updateTotalCorrect(String CATAGORY,String CHAP_ID, String CORRECT_QUES) {
-        Cursor c = getDataSCOREDATA(CATAGORY, CHAP_ID);
+    public boolean updateTotalCorrect(String CHAP_ID, String CORRECT_QUES) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
         c.moveToFirst();
         String rowId = c.getString(0);
         c.close();
