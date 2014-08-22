@@ -1,0 +1,64 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/top_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+
+            <ImageView
+                android:id="@+id/bottom_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ImageView
+            android:background="@drawable/circle_photo_bg"
+            android:id="@+id/top_profile"
+            android:layout_margin="50dp"
+            android:layout_gravity="top|left"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+
+        <ImageView
+            android:background="@drawable/qz_logo"
+            android:id="@+id/animate_logo"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+
+        <ImageView
+            android:background="@drawable/circle_photo_bg"
+            android:id="@+id/bottom_profile"
+            android:layout_margin="50dp"
+            android:layout_gravity="bottom|right"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+
+    </FrameLayout>
+
+
+</FrameLayout>
