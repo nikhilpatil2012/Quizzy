@@ -3,25 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
->
+    >
 
 
+
+<!--
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/top_image"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/top_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 
 
-            <ImageView
-                android:id="@+id/bottom_image"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/bottom_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -59,6 +61,95 @@
 
 
     </FrameLayout>
+-->
 
 
+    <LinearLayout
+        android:id="@+id/vs_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="10"
+        >
+
+
+        <FrameLayout
+            android:id="@+id/top_frame"
+            android:layout_weight="5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:scaleType="fitXY"
+                android:id="@+id/p1_back_wall"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image_up"
+                />
+
+            <ImageView
+                android:scaleType="fitXY"
+                android:id="@+id/p1_profile_pic"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_gravity="top|left"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/frame2"
+                android:src="@drawable/ic_launcher"
+                />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/bottom_frame"
+            android:layout_weight="5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:scaleType="fitXY"
+                android:id="@+id/p2_back_wall"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/image_down"
+                />
+
+            <ImageView
+                android:id="@+id/p2_profile_pic"
+                android:scaleType="fitXY"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="30dp"
+                android:layout_gravity="right|bottom"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/frame2"
+                android:src="@drawable/ic_launcher"
+                />
+
+
+        </FrameLayout>
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/center_layer"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <ImageView
+            android:id="@+id/center_back_wall"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="fitXY"
+            />
+
+        <ImageView
+            android:scaleType="fitXY"
+            android:id="@+id/center_logo"
+            android:layout_gravity="center"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/qz_logo"
+            />
+    </FrameLayout>
 </FrameLayout>
