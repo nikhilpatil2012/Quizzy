@@ -7,91 +7,56 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
+import android.os.Handler;
 import android.view.View;
-import android.view.animation.BounceInterpolator;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.io.FileNotFoundException;
-import java.util.List;
 
-import tronbox.QuizzyArena.QuizzyArena;
-import tronbox.welcome.QuizzyApplication;
-import tronbox.welcome.SharedPrefrenceStorage;
+
+import dev.ideapot.quizzy.R;
 
 public class VsActivity extends Activity {
 
-    ImageView topImage, topProfile, bottomImage, bottomProfile, animateLogo;
-
-    LinearLayout.LayoutParams topParams, bottomParams;
-    Bitmap player1Pic, player1Timeline, player2Pic, player2Timeline;
-    String name, country;
-    Point p;
-    AnimationDrawable timerAnimation;
+    private ImageView p1_profile, p2_profile,center_back;
+    private FrameLayout top_Frame,bottom_Frame;
+    private Bitmap player1Pic, player2Pic;
+    //String name, country;
+    private Point p;
+    private AnimationDrawable timerAnimation;
     private String Mode;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vs_activity);
+
         getActionBar().hide();
 
         p = new Point();
         getWindowManager().getDefaultDisplay().getSize(p);
-
         ParseBundle(getIntent().getExtras());
 
-        topParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, p.y/2);
-        topParams.gravity = Gravity.TOP;
-
-
-        bottomParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, p.y/2);
-        bottomParams.gravity = Gravity.BOTTOM;
-
-        topImage = (ImageView)findViewById(R.id.top_image);
-        topImage.setScaleType(ImageView.ScaleType.FIT_XY);
-        topImage.setImageBitmap(player1Timeline);
-        topImage.setLayoutParams(topParams);
-
-        bottomImage = (ImageView)findViewById(R.id.bottom_image);
-        bottomImage.setScaleType(ImageView.ScaleType.FIT_XY);
-        bottomImage.setImageBitmap(player2Timeline);
-        bottomImage.setLayoutParams(bottomParams);
-
-        topProfile = (ImageView)findViewById(R.id.top_profile);
-        topProfile.setImageBitmap(imageCircleClip(player1Pic));
-
-        bottomProfile = (ImageView)findViewById(R.id.bottom_profile);
-        bottomProfile.setImageBitmap(imageCircleClip(player2Pic));
-
-        animateLogo = (ImageView)findViewById(R.id.animate_logo);
-        animateLogo.setBackgroundResource(R.drawable.qz_logo);
-       // timerAnimation = (AnimationDrawable)animateLogo.getBackground();
-
+        init();
 
         animationStart();
     }
-
     public void animationStart(){
 
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(ObjectAnimator.ofFloat(topImage, View.Y, -p.y/2, 0), ObjectAnimator.ofFloat(bottomImage, View.Y, p.y+p.y/2, p.y/2));
-        set.setInterpolator(new BounceInterpolator());
-        set.setDuration(2000);
+        set.playTogether(ObjectAnimator.ofFloat(top_Frame, View.Y, -p.y/2, 0), ObjectAnimator.ofFloat(bottom_Frame, View.Y, p.y+p.y/2, p.y/2));
+        set.setDuration(600);
+
         set.start();
 
         set.addListener(new Animator.AnimatorListener() {
+
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -100,11 +65,31 @@ public class VsActivity extends Activity {
             @Override
             public void onAnimationEnd(Animator animator) {
 
-                Intent intent = new Intent(getApplicationContext(), QuizzyArena.class);
-                intent.putExtra("Mode", Mode);
-                startActivity(intent);
+                ((LinearLayout)findViewById(R.id.vs_layout)).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.shake));
+                ((FrameLayout)findViewById(R.id.center_layer)).startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.shake));
 
-//                timerAnimation.start();
+                center_back.setVisibility(View.VISIBLE);
+                timerAnimation.start();
+
+
+                final Handler handler = new Handler();
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        timerAnimation.stop();
+
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent(getApplicationContext(), HomeScreen.class);
+                                intent.putExtra("Mode", Mode);
+                                startActivity(intent);
+                                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                            }
+                        },600);
+                    }
+                },1500);
 
             }
 
@@ -115,84 +100,54 @@ public class VsActivity extends Activity {
 
             @Override
             public void onAnimationRepeat(Animator animator) {
-
             }
+
         });
-
-
-
     }
-
     public void ParseBundle(Bundle bundle){
-
         if(bundle != null){
-
             if(bundle.containsKey("Mode")){
-
                 Mode = bundle.getString("Mode");
-
             }
 
-            String id = SharedPrefrenceStorage.getUserFacebookId(getApplicationContext());
-
-            player1Pic = getImage(id+".png");
-            player2Pic = getImage(QuizzyApplication.challengerUserCode+".png");
-
-            player1Timeline = getImage(id+"_timeline.png");
-            player2Timeline = BitmapFactory.decodeResource(getResources(), R.drawable.amir);
+           // String id = SharedPrefrenceStorage.getUserFacebookId(getApplicationContext());
+           // player1Pic = getImage(id+".png");
+           // player2Pic = getImage(QuizzyApplication.challengerUserCode+".png");
+           // player1Timeline = getImage(id+"_timeline.png");
+           // player2Timeline = BitmapFactory.decodeResource(getResources(), R.drawable.amir);
 
         }
     }
 
-    public  Bitmap imageCircleClip(Bitmap sourceBitmap){
+    private void init()
+    {
+        top_Frame = (FrameLayout)findViewById(R.id.top_frame);
+        bottom_Frame = (FrameLayout)findViewById(R.id.bottom_frame);
 
-        Bitmap bitmap = sourceBitmap;
+        center_back = (ImageView)findViewById(R.id.center_back_wall);
+        center_back.setVisibility(View.INVISIBLE);
 
-        if(bitmap == null){
+        p1_profile = (ImageView)findViewById(R.id.p1_profile_pic);
+        p2_profile = (ImageView)findViewById(R.id.p2_profile_pic);
 
-            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.james);
-        }
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        center_back.setBackgroundResource(R.drawable.animation_vs);
+        timerAnimation = (AnimationDrawable) center_back.getBackground();
 
-        paint.setColor(Color.parseColor("#bbbbbb"));
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(10);
 
-        int targetWidth = 80;
-        int targetheight = 80;
-
-        Bitmap outputBitmap = Bitmap.createBitmap(targetWidth, targetheight, Bitmap.Config.ARGB_8888);
-
-        Path path = new Path();
-        path.addCircle(targetWidth/2, targetheight/2, targetWidth/2, Path.Direction.CW);
-
-        Canvas canvas = new Canvas(outputBitmap);
-        canvas.clipPath(path);
-
-        Rect src = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        Rect out = new Rect(0, 0, targetWidth, targetheight);
-
-        Bitmap source = bitmap;
-
-        canvas.drawBitmap(source, src, out, null);
-        canvas.drawCircle(targetWidth/2, targetheight/2, targetWidth/2, paint);
-
-        return outputBitmap;
+        p1_profile.setImageBitmap(player1Pic);
+        p2_profile.setImageBitmap(player2Pic);
     }
 
     public Bitmap getImage(String name){
-
         Bitmap bitmap = null;
-
         try {
-
-        bitmap =  BitmapFactory.decodeStream(openFileInput(name));
-
+            bitmap = BitmapFactory.decodeStream(openFileInput(name));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         return bitmap;
     }
+
 }
+
