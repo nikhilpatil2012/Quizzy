@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <ImageView
+        android:id="@+id/profilePic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/hello_world"
+        android:padding="2dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/dummy_image"
+        />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="First Name"
+        android:textColorHint="#000000"
+        android:textColor="#000000"
+        android:background="@drawable/apptheme_edit_text_holo_light"
+        android:layout_alignTop="@id/profilePic"
+        android:layout_toRightOf="@+id/profilePic"
+        android:inputType="textPersonName" >
+
+    </EditText>
+
+    <EditText
+        android:id="@+id/mobile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mobile No."
+        android:textColorHint="#000000"
+        android:textColor="#000000"
+        android:background="@drawable/apptheme_edit_text_holo_light"
+        android:layout_alignBottom="@id/profilePic"
+        android:layout_toRightOf="@+id/profilePic"
+        android:maxLength="10"
+        android:inputType="number" />
+
+</RelativeLayout>
