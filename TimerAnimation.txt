@@ -1,0 +1,8 @@
+
+Animation animation = new AlphaAnimation(0.1f,1.0f);
+animation.setRepeatCount(Animation.INFINITE);
+animation.setRepeatMode(Animation.REVERSE);
+animation.setDuration(1000);
+        
+        
+imageView.startAnimation(animation);
