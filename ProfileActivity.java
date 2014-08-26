@@ -1,12 +1,30 @@
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 import dev.support.SharedPrefrenceStorage;
 
@@ -15,6 +33,7 @@ public class ProfileActivity extends Activity {
     private EditText name,mobile;
     private RadioGroup radioGroup;
     private DatePicker datePicker;
+    private ImageView proImageView;
     private Button submit;
     private String usr_name,usr_mobile,usr_bday,usr_bmonth,usr_byear,usr_gender;
 
@@ -22,19 +41,30 @@ public class ProfileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPrefrenceStorage.initialize(getApplicationContext()).edit().putString("UserCode","000007256").commit();
+
         setContentView(R.layout.activity_profile);
 
-        getActionBar().hide();
+        initActionBar(getActionBar());
 
         Bundle b = SharedPrefrenceStorage.getProfileData(getApplicationContext());
 
-        init(b.getString("Name"),b.getString("userMobile"),b.getString("userGender"),b.getString("birthDay"),b.getString("birthMonth"),b.getString("birthYear"));
+        init(b.getString("Name"),b.getString("userMobile"),b.getString("userGender"),b.getString("birthDay"),b.getString("birthMonth"),b.getString("birthYear"),b.getString("UserCode"));
 
 
     }
 
-    private void init(String u_name,String u_mobile,String u_gender,String ubday,String ubmonth,String u_byear)
+    private void init(String u_name,String u_mobile,String u_gender,String ubday,String ubmonth,String u_byear,String u_code)
     {
+        proImageView = (ImageView)findViewById(R.id.profilePic);
+        try
+        {
+            
+            proImageView.setImageBitmap(BitmapFactory.decodeStream(openFileInput(u_code+".jpg")));
+        }catch (Exception e){
+            
+        }
+
         name = (EditText)findViewById(R.id.name);
         mobile = (EditText)findViewById(R.id.mobile);
         datePicker = (DatePicker)findViewById(R.id.datePicker1);
@@ -68,10 +98,21 @@ public class ProfileActivity extends Activity {
                 getAllValuesAndSave();
             }
         });
+
+        proImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                Intent i = new Intent(
+                        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                final int ACTIVITY_SELECT_IMAGE = 1235;
+                startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
+            }
+        });
     }
 
     private void getAllValuesAndSave()
     {
+
         usr_name = name.getText().toString();
         usr_mobile = mobile.getText().toString();
         usr_bday = ""+datePicker.getDayOfMonth();
@@ -98,4 +139,94 @@ public class ProfileActivity extends Activity {
 
     }
 
+    private void initActionBar(ActionBar actionBar)
+    {
+        actionBar.setTitle("Login");
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View mCustomView = mInflater.inflate(R.layout.custom_action_bar_score_activity, null);
+
+        ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
+        mCustomView.setLayoutParams(params);
+        actionBar.setCustomView(mCustomView);
+        TextView actionBarText = (TextView)mCustomView.findViewById(R.id.nameOfScreen);
+        actionBarText.setText("Profile");
+
+        TextView back = (TextView)mCustomView.findViewById(R.id.back);
+        back.setText("Home");
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.w("DEMO", "back to home");
+
+
+            }
+        });
+
+        actionBar.setDisplayShowCustomEnabled(true);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1235:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    final String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    proImageView.getHandler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Log.w("DEMO", "path >> " + filePath);
+                                ExifInterface exif = new ExifInterface(filePath);
+                                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                                Log.w("DEMO", "ORIENTATION :: " + orientation);
+                                Bitmap image = BitmapFactory.decodeFile(filePath);
+                                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                                    Matrix mat = new Matrix();
+                                    mat.postRotate(90);
+                                    image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), mat, true);
+                                }
+                                if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                                    Matrix mat = new Matrix();
+                                    mat.postRotate(180);
+                                    image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), mat, true);
+                                }
+                                if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                                    Matrix mat = new Matrix();
+                                    mat.postRotate(270);
+                                    image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), mat, true);
+                                }
+
+                                proImageView.setImageBitmap(Bitmap.createScaledBitmap(image,proImageView.getWidth(),proImageView.getHeight(),true));
+
+                                File f = new File(SharedPrefrenceStorage.getUserCode(getApplicationContext())+".jpg");
+                                FileOutputStream out = openFileOutput(f.getName(), Context.MODE_PRIVATE);
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                out.write(bos.toByteArray(), 0, bos.toByteArray().length);
+                                out.close();
+
+                            } catch (OutOfMemoryError e) {
+                                Toast.makeText(getApplicationContext(),"Error in updating image",Toast.LENGTH_LONG).show();
+
+                            } catch (Exception e) {
+
+                                Toast.makeText(getApplicationContext(),"Error in updating image",Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+        }
+    }
 }
