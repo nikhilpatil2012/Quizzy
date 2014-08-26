@@ -88,6 +88,29 @@ public class SharedPrefrenceStorage {
 
         return initialize(context).getString("FacebookId", "");
     }
+    public static boolean saveUpdateInfo(Context context,String name,String mobile,String gender,String bday,String bmonth,String byear){
 
+            SharedPreferences.Editor editor = initialize(context).edit();
+            editor.putString("Name", name);
+            editor.putString("userMobile", mobile);
+            editor.putString("userGender", gender);
+            editor.putString("birthDay", bday);
+            editor.putString("birthMonth", bmonth);
+            editor.putString("birthYear", byear);
+            return editor.commit();
+        }
+
+        public static Bundle getProfileData(Context context){
+            SharedPreferences preferences = initialize(context);
+            Bundle bundle = new Bundle();
+            bundle.putString("Name", preferences.getString("Name", ""));
+            bundle.putString("UserCode", preferences.getString("UserCode", ""));
+            bundle.putString("userMobile", preferences.getString("userMobile", ""));
+            bundle.putString("userGender", preferences.getString("userGender", ""));
+            bundle.putString("birthDay", preferences.getString("birthDay", ""));
+            bundle.putString("birthMonth", preferences.getString("birthMonth", ""));
+            bundle.putString("birthYear", preferences.getString("birthYear", ""));
+            return bundle;
+        }
 
 }
