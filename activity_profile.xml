@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bbbbbb"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/include1"
+                >
+
+                <ImageView
+                    android:id="@+id/profilePic"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:padding="2dp"
+                    android:background="@drawable/profile_image_back"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/dummy_image"
+                    />
+
+                <EditText
+                    style="@style/myEditText"
+                    android:id="@+id/name"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="21dp"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:hint="First Name"
+                    android:textColorHint="#000000"
+                    android:textColor="#000000"
+                    android:layout_alignTop="@id/profilePic"
+                    android:layout_toRightOf="@+id/profilePic"
+                    android:inputType="textPersonName" >
+
+                </EditText>
+
+                <EditText
+                    style="@style/myEditText"
+                    android:id="@+id/mobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:hint="Mobile No."
+                    android:textColorHint="#000000"
+                    android:textColor="#000000"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="21dp"
+                    android:layout_alignBottom="@id/profilePic"
+                    android:layout_toRightOf="@+id/profilePic"
+                    android:maxLength="10"
+                    android:inputType="number" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/include1"
+                android:layout_margin="5dp"
+                android:text="D.O.B"
+                android:textColor="#000000"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
+            <DatePicker
+                android:id="@+id/datePicker1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/textView6"
+                android:layout_margin="1dp"
+                android:calendarViewShown="false"
+                android:textColor="#ffffff"
+                />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/datePicker1"
+                android:layout_margin="5dp"
+                android:text="Gender"
+                android:textColor="#000000"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <RadioGroup
+                android:id="@+id/gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/textView3"
+                android:layout_margin="5dp"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    style="@style/MyRadioButtonStyle"
+                    android:id="@+id/male"
+                    android:layout_width="0dp"
+                    android:textColor="#000000"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Male" />
+
+                <RadioButton
+                    style="@style/MyRadioButtonStyle"
+                    android:id="@+id/female"
+                    android:layout_width="0dp"
+                    android:textColor="#000000"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Female" />
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/gender"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="5dp"
+                android:text="Update"
+                android:background="@drawable/button"
+                android:textColor="#ffffff" />
+        </RelativeLayout>
+ </ScrollView>
+
+
