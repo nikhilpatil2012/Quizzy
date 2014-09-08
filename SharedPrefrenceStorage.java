@@ -115,18 +115,6 @@ public class SharedPrefrenceStorage {
         return editor.commit();
     }
 
-    public static Bundle getProfileData(Context context){
-        SharedPreferences preferences = initialize(context);
-        Bundle bundle = new Bundle();
-        bundle.putString("Name", preferences.getString("Name", ""));
-        bundle.putString("FacebookId", preferences.getString("FacebookId", ""));
-        bundle.putString("userMobile", preferences.getString("userMobile", ""));
-        bundle.putString("userGender", preferences.getString("userGender", ""));
-        bundle.putString("birthDay", preferences.getString("birthDay", ""));
-        bundle.putString("birthMonth", preferences.getString("birthMonth", ""));
-        bundle.putString("birthYear", preferences.getString("birthYear", ""));
-        return bundle;
-    }
 
     public static void storeHomeState(Context context, int state){
 
