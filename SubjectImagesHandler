@@ -18,8 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import tronbox.arena.LoadingScreen;
+import tronbox.arena.MessageSender;
+import tronbox.social.R;
 import tronbox.welcome.MasterHomeScreen;
 import tronbox.welcome.QuizzyApplication;
+import tronbox.welcome.SendUserCredentials;
+import tronbox.welcome.SharedPrefrenceStorage;
+import tronbox.welcome.Test;
+import tronbox.welcome.UpdateActivity;
 
 public class SubjectImagesHandler extends Handler{
 
@@ -38,32 +45,79 @@ public class SubjectImagesHandler extends Handler{
          String link = data.getString("url");
          String name = data.getString("name");
 
+        Log.w("ImageToBeDownloaded", link+"\n"+name);
+
         try {
 
-            java.net.URL url = new java.net.URL(link);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            SaveImage(myBitmap, name);
+            Intent intent = new Intent();
+            intent.setAction("LOADING_ACTIONS");
+            intent.putExtra("TAG", "NEW_MESSAGE");
+            intent.putExtra("MESSAGE", "Downloading Image "+data.getInt("count"));
+            context.sendBroadcast(intent);
 
-            if(data.containsKey("meta")){
+                java.net.URL url = new java.net.URL(link);
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                SaveImage(myBitmap, name);
 
-                String meta = data.getString("meta");
 
-                if(meta.equals("last")){
+            Log.w("ImageName", "Name"+name+"\nUrl = "+link);
 
-                    QuizzyApplication.DownloadOver = true;
-                    context.sendBroadcast(new Intent().setAction("DOWNLOAD_OVER"));
+            Log.w("FRIEND_REQUEST", "DOWNLOADING IMAGES");
 
-                    Log.w("Last Image Downloaded", "Last Image Downloaded");
+
+                if(data.containsKey("meta")){
+
+                    String meta = data.getString("meta");
+
+                    if(meta.equals("last")){
+
+                        QuizzyApplication.DownloadOver = true;
+
+                        ((UpdateActivity)context).callHome();
+
+                        Log.w("Last Image Downloaded", "Last Image Downloaded");
+
+                    }else if(meta.equals("fake")){
+
+
+                    }else if(meta.equals("last_fake_image")){
+
+
+                        ((LoadingScreen)context).callQuizzyArena("Play");
+
+                    }else if(meta.equals("last_fresh_image")){
+
+
+                        Intent intent1 = new Intent();
+                        intent1.setAction("LOADING_ACTIONS");
+                        intent1.putExtra("TAG", "START_PLAYING");
+                        context.sendBroadcast(intent1);
+
+                    }else if(meta.equals("last_challenge_image")){
+
+
+                        Log.w("FRIEND_REQUEST", "DOWNLOADING LAST IMAGES");
+
+                        ((LoadingScreen)context).callQuizzyArena("CHALLENGE");
+
+                    }else if(meta.equals("FACEBOOK_LAST")){
+
+                        Log.w("FRIEND_REQUEST", "DOWNLOADING LAST IMAGES");
+
+                        Bundle bundle = SharedPrefrenceStorage.getProfileInfo(context);
+
+                        new SendUserCredentials(context).execute(bundle.getString("Name"), bundle.getString("Dob"), bundle.getString("Dob"), bundle.getString("Location"), SharedPrefrenceStorage.GetRegId(context), bundle.getString("FacebookId"));
+
+                    }
 
                 }
-            }
 
+                Log.w("Image Downloaded", "Image Downloaded "+name);
 
-            Log.w("Image Downloaded", "Image Downloaded "+name);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,7 +126,7 @@ public class SubjectImagesHandler extends Handler{
 
     }
 
-    private void SaveImage(Bitmap finalBitmap, String name) {
+    public void SaveImage(Bitmap finalBitmap, String name) {
 
         try {
 
@@ -90,5 +144,29 @@ public class SubjectImagesHandler extends Handler{
             e.printStackTrace();
         }
 
+    }
+
+    public Boolean checkBitmap(String name){
+
+        Boolean check = false;
+
+        try {
+
+            if(context.openFileInput(name) != null){
+
+                check = true;
+
+            }else{
+
+                check = false;
+            }
+
+        } catch (FileNotFoundException e1) {
+
+            check = false;
+
+        }
+
+        return check;
     }
 }
