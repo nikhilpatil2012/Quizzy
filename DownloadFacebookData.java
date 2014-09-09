@@ -200,6 +200,13 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
                  }
 
             }
+            else{
+
+                Bundle bundle = SharedPrefrenceStorage.getProfileInfo(context);
+
+                new SendUserCredentials(context).execute(bundle.getString("Name"), bundle.getString("Dob"), bundle.getString("Dob"), bundle.getString("Location"), SharedPrefrenceStorage.GetRegId(context), bundle.getString("FacebookId"));
+
+            }
 
 
 
