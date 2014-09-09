@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,12 +16,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -36,11 +39,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import tronbox.Sounds.AndroidAudio;
+import tronbox.Sounds.AndroidMusic;
+import tronbox.Sounds.Assets;
+import tronbox.Sounds.Audio;
+import tronbox.Sounds.Music;
 import tronbox.arena.MessageSender;
 import tronbox.arena.Question;
 import tronbox.arena.Score;
@@ -136,7 +145,7 @@ public class QuizzyArena extends Activity {
 
     private StringBuffer ScoreBuffer = new StringBuffer();
 
-    private String ChallengerBuffer;
+    private String ChallengerBuffer = "###";
 
     private int SHOW_ROUND = 2000;
 
@@ -150,6 +159,17 @@ public class QuizzyArena extends Activity {
 
     private int wrong = 0;
 
+    private Audio audio;
+
+    private Vibrator v;
+
+    private AlertDialog alertDialog;
+
+    private Boolean broadcast = false;
+
+    private String firstName = " ", secondName = " ";
+    
+    private float verticalButtonHeight = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,19 +178,28 @@ public class QuizzyArena extends Activity {
 
         getActionBar().hide();
 
-
         init();
-
 
     }
 
     public void init(){
 
+       verticalButtonHeight = (QuizzyApplication.screenHeight*0.60f)/5;
+       Log.w("verticalHeight", ""+verticalButtonHeight);
+
+        QuizzyApplication.userScoreList.clear();
+
+        v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+
+        audio = new AndroidAudio(this);
+
+        QuizzyApplication.arenaBeats = audio.newMusic("arena_beats.ogg");
+        QuizzyApplication.arenaBeats.setLooping(true);
+
         buttonSize = new LinearLayout.LayoutParams(0, 100);
 
-
         Bundle profileInfo = SharedPrefrenceStorage.getProfileInfo(getApplicationContext());
-        userCode = profileInfo.getString("UserCode");
+        userCode = SharedPrefrenceStorage.getUserCode(getApplicationContext());
         userName = profileInfo.getString("Name");
         userFbId = profileInfo.getString("FacebookId");
 
@@ -199,10 +228,15 @@ public class QuizzyArena extends Activity {
         }
 
         player1Name = (TextView)findViewById(R.id.player_1_name);
-        player1Name.setText(userName);
-
         player2Name = (TextView)findViewById(R.id.player_2_name);
+
+
+
+
+
+        player1Name.setText(userName);
         player2Name.setText(challengerName);
+
 
         player1Level = (TextView)findViewById(R.id.player_1_level);
         player2Level = (TextView)findViewById(R.id.player_2_level);
@@ -249,18 +283,25 @@ public class QuizzyArena extends Activity {
         round1 = (ImageView)findViewById(R.id.round_1);
         //round2 = (ImageView)findViewById(R.id.round_2);
 
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int)verticalButtonHeight);
+        buttonParams.setMargins(5,5,5,5);
 
         option1 = (Button)findViewById(R.id.one);
         option1.setOnClickListener(listener);
+        option1.setLayoutParams(buttonParams);
+
 
         option2 = (Button)findViewById(R.id.two);
         option2.setOnClickListener(listener);
+        option2.setLayoutParams(buttonParams);
 
         option3 = (Button)findViewById(R.id.three);
         option3.setOnClickListener(listener);
+        option3.setLayoutParams(buttonParams);
 
         option4 = (Button)findViewById(R.id.four);
         option4.setOnClickListener(listener);
+        option4.setLayoutParams(buttonParams);
 
         option5 = (Button)findViewById(R.id.five);
         //option5.setLayoutParams(buttonSize);
@@ -298,6 +339,7 @@ public class QuizzyArena extends Activity {
                     QuizzyApplication.imageIdsPool.clear();
                     QuizzyApplication.scoreList.clear();
 
+
                 }else if(bundle.getString("Mode").equals("CHALLENGE")){
 
                     Mode = "CHALLENGE";
@@ -314,6 +356,7 @@ public class QuizzyArena extends Activity {
                     QuizzyApplication.imageQuestionIdPool.clear();
                     QuizzyApplication.imageIdsPool.clear();
 
+                    QuizzyApplication.challengerList.clear();
                 }
 
             }
@@ -326,9 +369,17 @@ public class QuizzyArena extends Activity {
     @Override
     protected void onPause() {
 
-        if(Mode.equals("CHALLENGE")){
+        try{
 
             unregisterReceiver(broadcastReceiver);
+
+        }catch (IllegalArgumentException ex){Log.e("BroadCast_Error", ex.getMessage());}
+
+
+
+        if(QuizzyApplication.arenaBeats.isPlaying() && QuizzyApplication.arenaSound == true){
+
+            QuizzyApplication.arenaBeats.stop();
         }
 
         super.onPause();
@@ -349,7 +400,20 @@ public class QuizzyArena extends Activity {
 
                 player1Score.setBackgroundResource(R.drawable.text_circle_red_shape);
 
+                v.vibrate(500);
+
+
+                if(QuizzyApplication.soundFX == true){
+
+                    Assets.loose.play(1);
+                }
+
             }else {
+
+                if(QuizzyApplication.soundFX == true){
+
+                    Assets.whistle.play(1);
+                }
 
                 isCorrect = "yes";
 
@@ -364,7 +428,10 @@ public class QuizzyArena extends Activity {
             if(Mode.equals("Play")){
 
                 timerAnimation.stop();
+                controller.flip();
             }
+
+            disableButtons();
 
              //   controller.flip();
 
@@ -451,6 +518,11 @@ public class QuizzyArena extends Activity {
 
                         round1.setVisibility(View.VISIBLE);
 
+                        if(QuizzyApplication.soundFX == true){
+
+                            Assets.gong.play(1);
+                        }
+
                     }
 
                     @Override
@@ -498,7 +570,11 @@ public class QuizzyArena extends Activity {
                 clear();
 
                 question = nextQuestion();
-                correctAnswer = question.getAns();
+
+                if(question.getAns() != null){
+
+                    correctAnswer = question.getAns();
+                }
 
 
                 bitmap = null;
@@ -521,9 +597,7 @@ public class QuizzyArena extends Activity {
 
                     }
 
-
                 }
-
 
                 questionText.setText(question.getqText());
 
@@ -585,12 +659,29 @@ public class QuizzyArena extends Activity {
 
                                 animatorArrayList.clear();
 
-                                String[] options = question.getOpt().split(",");
+                                //String[] options = question.getOpt().split(",");
 
-                                o1.setText(options[0]);
-                                o2.setText(options[1]);
-                                o3.setText(options[2]);
-                                o4.setText(options[3]);
+                                ArrayList<String> options = new ArrayList<String>(4);
+
+                                for(String option: question.getOpt().split(",")){
+
+                                    if(option != null && option.length() > 0){
+
+                                        options.add(option);
+
+                                    } else {
+
+                                        options.add("None of these");
+                                    }
+
+                               }
+
+                                o1.setText(options.get(0));
+                                o2.setText(options.get(1));
+                                o3.setText(options.get(2));
+                                o4.setText(options.get(3));
+
+                                options.clear();
 
                                 o1.setVisibility(View.VISIBLE);
                                 o2.setVisibility(View.VISIBLE);
@@ -619,6 +710,11 @@ public class QuizzyArena extends Activity {
                             } break;
 
                             case 102:{
+
+                                if(QuizzyApplication.arenaSound == true){
+
+                                    QuizzyApplication.arenaBeats.play();
+                                }
 
                                 set1.removeListener(animatorListener1);
                                 set2.removeListener(animatorListener1);
@@ -656,6 +752,14 @@ public class QuizzyArena extends Activity {
         Runnable clearRunner = new Runnable() {
             @Override
             public void run() {
+
+                if(QuizzyApplication.arenaSound == true && QuizzyApplication.arenaBeats.isPlaying()){
+
+
+                    QuizzyApplication.arenaBeats.pause();
+                    QuizzyApplication.arenaBeats.seekTo(0);
+                }
+
 
                 if(questionNum != wrong){
 
@@ -822,7 +926,7 @@ public class QuizzyArena extends Activity {
         public void handleMessage(Message msg) {
 
             timerStop = false;
-            timerCount = 13;
+            timerCount = 14;
 
             post(worker);
 
@@ -899,12 +1003,15 @@ public class QuizzyArena extends Activity {
 
                     }
 
-            }
+                Log.w("Score+Time", "Score = "+scoreValue+"\n Timer = "+timerCount);
 
+            }
 
             userScore = userScore + scoreValue;
 
-            userScoreList.add(new Score(question.getqKey(), String.valueOf((int) timerCount), String.valueOf(scoreValue)));
+            Log.w("Score+Time", "Score = "+scoreValue+"\n Timer = "+timerCount+"\nTotal Score = "+userScore);
+
+            QuizzyApplication.userScoreList.add(new Score(question.getqKey(), String.valueOf((int) timerCount), String.valueOf(scoreValue)));
 
             player1Score.setText(String.valueOf(userScore));
 
@@ -912,9 +1019,9 @@ public class QuizzyArena extends Activity {
 
           ScoreBuffer.append(scoreValue+"#");
 
-       new MessageSender().execute(userCode, challengerUserCode, "SCORE@"+scoreValue+"@"+isCorrect+"@"+timerCount+"@"+ScoreBuffer.toString());
+           new MessageSender().execute(userCode, challengerUserCode, "score@"+scoreValue+"@"+isCorrect+"@"+timerCount+"@"+ScoreBuffer.toString());
 
-                int val = questionNum - messageCount;
+             int val = questionNum - messageCount;
 
                 if(val > 2){
 
@@ -923,18 +1030,20 @@ public class QuizzyArena extends Activity {
 
             } else if(Mode.equals("Play")) {
 
-                Log.w("ScoreListSize", "Size = "+scoreList.size());
+                Log.w("ScoreListSize", "Size = "+QuizzyApplication.challengerList.size());
 
 
-                if (questionNum < 10 && scoreList.size() == 10){
+                if (questionNum < 10 && QuizzyApplication.challengerList.size() == 10){
 
-                    String score = scoreList.get(questionNum).getScore();
+                    String score = QuizzyApplication.challengerList.get(questionNum).getScore();
 
-                    Log.w("ScoreListSize", "Size = "+score);
+                    Log.w("ChallengerScores", "Size = "+score);
 
                     if(score != null){
 
                         challengerScore = challengerScore + Integer.parseInt(score);
+
+                        Log.w("ChallengerScore", ""+challengerScore);
 
                         player2Score.setText(String.valueOf(challengerScore));
 
@@ -955,6 +1064,11 @@ public class QuizzyArena extends Activity {
 
             }
 
+            if(broadcast == true){
+
+                timerAnimation.stop();
+                controller.flip();
+            }
 
         }
 
@@ -971,7 +1085,7 @@ public class QuizzyArena extends Activity {
 
         }catch (FileNotFoundException ex){
 
-            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.dummy_image);
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.james);
         }
 
 
@@ -985,7 +1099,7 @@ public class QuizzyArena extends Activity {
             @Override
             public void run() {
 
-                new MessageSender().execute(userCode, challengerUserCode, "SCORE@"+scoreValue+"@"+isCorrect+"@"+timerCount+"@"+ScoreBuffer.toString());
+                new MessageSender().execute(userCode, challengerUserCode, "score@"+scoreValue+"@"+isCorrect+"@"+timerCount+"@"+ScoreBuffer.toString());
 
                 for(Score s : userScoreList){
 
@@ -1004,8 +1118,9 @@ public class QuizzyArena extends Activity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
+/*
                 intent.putParcelableArrayListExtra("P1_SCORE", userScoreList);
-                intent.putParcelableArrayListExtra("P2_SCORE", scoreList);
+                intent.putParcelableArrayListExtra("P2_SCORE", scoreList);*/
 
                 intent.putExtra("P1_NAME", userName);
                 intent.putExtra("P2_NAME", challengerName);
@@ -1037,6 +1152,7 @@ public class QuizzyArena extends Activity {
                 imageQuestionIdPool.clear();
                 imageIdsPool.clear();
                 scoreList.clear();
+
 
                 messageCount = 0;
 
@@ -1092,11 +1208,11 @@ public class QuizzyArena extends Activity {
 
                     String Tag = bundle.getString("TAG");
 
-                    if(Tag.equals("SCORE_VALUE") && bundle.containsKey("SCORE") && bundle.containsKey("CORRECT")){
+                    if(Tag.equals("SCORE_VALUE") && bundle.containsKey("score") && bundle.containsKey("CORRECT")){
 
                         messageCount++;
 
-                        String score = bundle.getString("SCORE");
+                        String score = bundle.getString("score");
                         String correct = bundle.getString("CORRECT");
                         String timerCount = bundle.getString("TIMERCOUNT");
 
@@ -1126,10 +1242,14 @@ public class QuizzyArena extends Activity {
                             timerAnimation.stop();
                             controller.flip();
 
+                        }else{
+
+                            broadcast = true;
+
                         }
 
 
-                        scoreList.add(new Score("no use", timerCount, score));
+                        QuizzyApplication.challengerList.add(new Score("no use", timerCount, score));
 
                         Log.w("ACKNOLEGE", score);
                     }
@@ -1150,16 +1270,88 @@ public class QuizzyArena extends Activity {
 
 
         option1.setVisibility(View.GONE);
+        option1.setEnabled(true);
+
         option2.setVisibility(View.GONE);
+        option2.setEnabled(true);
+
         option3.setVisibility(View.GONE);
+        option3.setEnabled(true);
+
         option4.setVisibility(View.GONE);
+        option4.setEnabled(true);
+
         option5.setVisibility(View.GONE);
+        option5.setEnabled(true);
+
         option6.setVisibility(View.GONE);
+        option6.setEnabled(true);
+
         option7.setVisibility(View.GONE);
+        option7.setEnabled(true);
+
         option8.setVisibility(View.GONE);
+        option8.setEnabled(true);
+
 
         flip = false;
 
+        broadcast = false;
+
+    }
+
+    public void disableButtons(){
+
+        o1.setEnabled(false);
+        o2.setEnabled(false);
+        o3.setEnabled(false);
+        o4.setEnabled(false);
+    }
+
+
+    private AlertDialog makeDialog()
+    {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        View v = getLayoutInflater().inflate(R.layout.oops_view, null);
+
+        Typeface font = Typeface.createFromAsset(getAssets(),"font.ttf");
+        Typeface font1 = Typeface.createFromAsset(getAssets(), "font1.TTF");
+
+        ((TextView)v.findViewById(R.id.oops_title)).setTypeface(font1);
+        ((TextView)v.findViewById(R.id.oops_message)).setTypeface(font);
+
+        Button tryAgain = (Button)v.findViewById(R.id.try_again);
+        tryAgain.setTypeface(font1);
+
+
+        alertDialogBuilder.setView(v);
+
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.Animations_SmileWindow;
+
+        alertDialog.setCancelable(false);
+        tryAgain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+
+                Intent intent = new Intent(getApplicationContext(), MasterHomeScreen.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                finish();
+
+            }
+        });
+        return alertDialog;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        makeDialog().show();
 
     }
 }
