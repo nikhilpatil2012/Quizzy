@@ -30,9 +30,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+
+import tronbox.Sounds.AndroidAudio;
+import tronbox.Sounds.Audio;
 import tronbox.controller.QuizzyDatabase;
 import tronbox.social.R;
 import tronbox.welcome.MasterHomeScreen;
+import tronbox.welcome.QuizzyApplication;
 
 
 public class ScoreActivity extends Activity {
@@ -49,11 +53,19 @@ public class ScoreActivity extends Activity {
     private Typeface font;
     private QuizzyDatabase database;
     private String Buffer;
+    private Audio audio;
+    private Boolean bufferPresent = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.score_dynamic_view);
+
+        audio = new AndroidAudio(this);
+        QuizzyApplication.gameSound = audio.newMusic("playback.ogg");
+        QuizzyApplication.gameSound.setLooping(true);
+        QuizzyApplication.gameSound.play();
+
 
         database = new QuizzyDatabase(getApplicationContext(),"QUIZZY",null,1);
 
@@ -66,17 +78,20 @@ public class ScoreActivity extends Activity {
         if (b != null) {
 
 
+/*
             ArrayList<Score> data1 = b.getParcelableArrayList("P1_SCORE");
             ArrayList<Score> data2 = b.getParcelableArrayList("P2_SCORE");
+*/
 
 
-            for(Score s : data1){
+
+            for(Score s : QuizzyApplication.userScoreList){
 
                 Log.w("AfterUserMessage", s.getScore());
             }
 
 
-            for(Score s : data2){
+            for(Score s : QuizzyApplication.challengerList){
 
                 Log.w("AfterChallengerScore", s.getScore());
             }
@@ -89,10 +104,10 @@ public class ScoreActivity extends Activity {
             secondPlayerScore = new int[10];
 
 
-            if((data1 != null) && (data1.size() == 10))
+            if((QuizzyApplication.userScoreList != null) && (QuizzyApplication.userScoreList.size() == 10))
             {
-                for (int i = 0; i < data1.size(); i++) {
-                    Score c = (Score) data1.get(i);
+                for (int i = 0; i < QuizzyApplication.userScoreList.size(); i++) {
+                    Score c = (Score) QuizzyApplication.userScoreList.get(i);
                     firstPlayerScore[i] = Integer.valueOf(c.getScore());
                 }
             }
@@ -101,6 +116,8 @@ public class ScoreActivity extends Activity {
             if(b.containsKey("Buffer")){
 
                 Buffer = b.getString("Buffer");
+
+                bufferPresent = true;
 
                 if(Buffer.length() > 19){
 
@@ -114,18 +131,29 @@ public class ScoreActivity extends Activity {
 
                     }
 
+                }else { // Complete score has not recieved
+
+                    for (int i = 0; i < 10; i++) {
+
+                        secondPlayerScore[i] = 0;
+
+                    }
+
                 }
 
 
-            } else {
+            }
 
-                if((data2 != null) && (data2.size() == 10))
+             else {
+
+                if((QuizzyApplication.challengerList != null))
 
                 {
-                    for (int i = 0; i < data2.size(); i++) {
-                        Score c = (Score) data2.get(i);
+                    for (int i = 0; i < QuizzyApplication.challengerList.size(); i++) {
+                        Score c = (Score) QuizzyApplication.challengerList.get(i);
                         secondPlayerScore[i] = Integer.valueOf(c.getScore());
                     }
+
                 }
 
             }
@@ -140,17 +168,10 @@ public class ScoreActivity extends Activity {
                 p2_title = b.getString("P2_TITLE");
             }
 
-            //calling service to save data on server
-            //000007343 --> user_code
-            //GAM000000014 --> game_code
-            //get score string using method getScoreString(ArrayList<Score> list)
 
-            //new ScoreSender(getApplicationContext()).execute("000007343", "GAM000000014", getScoreString(data1));
-
-
-            if((b.getString("USER_CODE")!=null) && (b.getString("GAME_CODE")!=null) && (data1 != null))
+            if((b.getString("USER_CODE")!=null) && (b.getString("GAME_CODE")!=null) && (QuizzyApplication.userScoreList != null))
             {
-                new ScoreSender(getApplicationContext()).execute(b.getString("USER_CODE"), b.getString("GAME_CODE"), getScoreString(data1));
+           //     new ScoreSender(getApplicationContext()).execute(b.getString("USER_CODE"), b.getString("GAME_CODE"), getScoreString(QuizzyApplication.userScoreList));
             }
 
             if( (b.getString("CATAGORY") != null) && (b.getString("CHAP_ID")!=null) )
@@ -331,30 +352,55 @@ public class ScoreActivity extends Activity {
         text = ((TextView)findViewById(R.id.result));
         text.setTypeface(Typeface.createFromAsset(getAssets(),"font1.TTF"));
 
-        try {
 
-            if(player_1_score < player_2_score)
+            if( (player_1_score < player_2_score))
             {
                 text.setText("You Loose !");
                 ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line));
-                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#db2121"));//red
-                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#01e04a"));//green
+                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#db2121"));//red
+                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#01e04a"));//green
             }
-            else
+            else if( (player_1_score > player_2_score))
             {
-                Log.w("DEMO",p1_image+ " :: "+p2_image);
-                text.setText("You Won !");
-                ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
-                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p1_image)),"#01e04a"));//red
-                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(BitmapFactory.decodeStream(openFileInput(p2_image)),"#db2121"));//green
+
+                if(bufferPresent == true && Buffer.length() < 19){
+
+                    text.setText(QuizzyApplication.challengerName+"'s Turn");
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#ffffff"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#ffffff"));//green
+
+                }else{
+
+                    Log.w("DEMO",p1_image+ " :: "+p2_image);
+                    text.setText("You Won !");
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#01e04a"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#db2121"));//green
+
+                }
+
             }
-        } catch (FileNotFoundException e) {
 
-        }catch (Exception e)
-        {
 
+    }
+
+
+    public Bitmap getBitmap(String name){
+
+        Bitmap bitmap = null;
+
+        try{
+
+            bitmap = BitmapFactory.decodeStream(openFileInput(name));
+
+        }catch (FileNotFoundException ex){
+
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.james);
         }
 
+
+        return bitmap;
     }
 
     private String getScoreString(ArrayList<Score> list)
@@ -391,10 +437,35 @@ public class ScoreActivity extends Activity {
                 {
                     p1_score.setText(String.valueOf(count));
                 }
-                if(count  <= player_2_score)
-                {
-                    p2_score.setText(String.valueOf(count));
+
+                if(bufferPresent){
+
+                    if(Buffer.length() > 19){
+
+                        if(count  <= player_2_score)
+                        {
+                            p2_score.setText(String.valueOf(count));
+                        }
+
+                    }else{
+
+                        p2_score.setText("?");
+
+                    }
+
+                }else {
+
+                    if(count  <= player_2_score)
+                    {
+                        p2_score.setText(String.valueOf(count));
+                    }
+
                 }
+
+
+
+
+
                 handler.postDelayed(this,2);
             }
             else
@@ -538,7 +609,33 @@ public class ScoreActivity extends Activity {
     {
         super.onDestroy();
 
+        QuizzyApplication.userScoreList.clear();
+        QuizzyApplication.challengerList.clear();
+
+
         database.close();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if(QuizzyApplication.gameSound.isPlaying() && QuizzyApplication.backGroundSound == true){
+
+            QuizzyApplication.gameSound.stop();
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+
+        if(QuizzyApplication.gameSound.isPlaying()){
+
+            QuizzyApplication.gameSound.stop();
+        }
+
+    }
 }
