@@ -141,68 +141,56 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
 
             SharedPrefrenceStorage.StoreProfileInfo(context, name, id, location, birthday, gender);
 
+
             if(master.has("friends")){
 
                 JSONObject ob2 = master.getJSONObject("friends");
+                JSONArray data = ob2.getJSONArray("data");
 
-                 if(ob2.getJSONArray("data").length() > 0){
+                Log.w("Data Count", ""+data.length());
 
-                     JSONArray data = ob2.getJSONArray("data");
-                     Log.w("Data Count", ""+data.length());
+                for(int i=0; i<=data.length()-1; i++){
 
-                     for(int i=0; i<=data.length()-1; i++){
+                    JSONObject info = data.getJSONObject(i);
 
-                         JSONObject info = data.getJSONObject(i);
+                    String name = info.getString("name");
+                    String id = info.getString("id");
+                    String pic = info.getJSONObject("picture").getJSONObject("data").getString("url");
 
-                         String name = info.getString("name");
-                         String id = info.getString("id");
-                         String pic = info.getJSONObject("picture").getJSONObject("data").getString("url");
+                    database.insertFriends(id, name, pic);
 
-                         database.insertFriends(id, name, pic);
+                    mapEntries.put(id+".png", pic);
 
-                         mapEntries.put(id+".png", pic);
+                    Log.w("FacebookName",name);
+                    Log.w("Facebookid",id);
+                    Log.w("Facebookpic",pic);
 
-                         Log.w("FacebookName",name);
-                         Log.w("Facebookid",id);
-                         Log.w("Facebookpic",pic);
-
-                     }
-
-                     Iterator iterator = mapEntries.entrySet().iterator();
-
-                     while(iterator.hasNext()) {
-
-                         Map.Entry entry = (Map.Entry)iterator.next();
-
-                         String name = (String)entry.getKey();
-                         String url = (String)entry.getValue();
-
-                         Bundle bundle = new Bundle();
-                         bundle.putString("url", url);
-                         bundle.putString("name", name);
-
-                         if(!iterator.hasNext()){
-                             bundle.putString("meta", "FACEBOOK_LAST");
-                         }
-
-                         Message message = new Message();
-                         message.setData(bundle);
-                         handler.sendMessage(message);
-
-                     }
-
-                 }else{
-
-                     Bundle bundle = SharedPrefrenceStorage.getProfileInfo(context);
-
-                     new SendUserCredentials(context).execute(bundle.getString("Name"), bundle.getString("Dob"), bundle.getString("Dob"), bundle.getString("Location"), SharedPrefrenceStorage.GetRegId(context), bundle.getString("FacebookId"));
-
-                 }
+                }
 
             }
 
+            Iterator iterator = mapEntries.entrySet().iterator();
 
+            while(iterator.hasNext()) {
 
+                Map.Entry entry = (Map.Entry)iterator.next();
+
+                String name = (String)entry.getKey();
+                String url = (String)entry.getValue();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("url", url);
+                bundle.putString("name", name);
+
+                if(!iterator.hasNext()){
+                    bundle.putString("meta", "FACEBOOK_LAST");
+                }
+
+                Message message = new Message();
+                message.setData(bundle);
+                handler.sendMessage(message);
+
+            }
 
         }
 
