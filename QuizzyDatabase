@@ -3,6 +3,7 @@ package tronbox.controller;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -39,11 +40,16 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
                 + " integer primary key autoincrement,"
                 + "USER_CODE text,CHAP_ID text,GLOBAL_RANK text,TOTAL_SCORE text,WIN text,LOOSE text,KILL_TIME text,TAG text); ";
 
+        String user_friends_Table="create table USER_FRIENDS_TABLE("
+                + "id"
+                + " integer primary key autoincrement,"
+                + "F_ID text not null UNIQUE,USER_CODE text); ";
+
         db.execSQL(dataTable);
         db.execSQL(scoreTable);
         db.execSQL(friendsTable);
         db.execSQL(friendsScoreTable);
-
+        db.execSQL(user_friends_Table);
     }
 
     public void insertUpdatesQUIZDATA(String CATAGORY,String CATAGORY_NAME,String CATAGORY_IMG_PATH,String CHAP_ID, String CHAP_NAME, String CHAP_IMG_PATH) {
@@ -55,7 +61,15 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         cv.put("CHAP_NAME", CHAP_NAME);
         cv.put("CHAP_IMG_PATH", CHAP_IMG_PATH);
 
-        getWritableDatabase().insert("QUIZDATA", null, cv);
+        try
+        {
+            getWritableDatabase().insertOrThrow("QUIZDATA", null, cv);
+        }catch (SQLiteConstraintException e){
+
+        }
+        catch (Exception e){
+
+        }
     }
 
     public void insertUpdatesSCOREDATA(String CATAGORY,String CATAGORY_NAME,String CHAP_ID,String CHAP_NAME,String GLOBAL_RANK,String TOTAL_SCORE, String CORRECT_QUES, String COUNT) {
@@ -73,18 +87,39 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         cv.put("LOOSE", COUNT);
         cv.put("KILL_TIME", COUNT);
 
-        getWritableDatabase().insert("SCOREDATA", null, cv);
-    }
+        try
+        {
+            getWritableDatabase().insertOrThrow("SCOREDATA", null, cv);
+        }catch (SQLiteConstraintException e)
+        {
 
-    public void insertFriends(String Id, String Name, String Pic){
+        }catch (Exception e){
+
+        }
+   }
+
+    public int insertFriends(String Id, String Name, String Pic){
 
         ContentValues cv = new ContentValues();
         cv.put("Uid", Id);
         cv.put("Name", Name);
         cv.put("Pic", Pic);
 
-        getWritableDatabase().insert("FRIENDSDATA", null, cv);
+        try{
+            getWritableDatabase().insertOrThrow("FRIENDSDATA", null, cv);
+            return 1;
+        }catch (SQLiteConstraintException e)
+        {
+            return 0;
+        }catch (Exception e)
+        {
+            return 0;
+        }
+    }
 
+    public Cursor getFriendsFbIdList()
+    {
+        return getWritableDatabase().query( "FRIENDSDATA", new String[]{"Uid"}, null, null, null,null, null, null);
     }
 
     public boolean updateTotalScore(String CHAP_ID, String TOTAL_SCORE) {
@@ -95,7 +130,6 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         c.close();
         ContentValues args = new ContentValues();
         args.put("TOTAL_SCORE", TOTAL_SCORE);
-
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
@@ -451,15 +485,56 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
             cv.put("WIN", WIN);
             cv.put("LOOSE", LOOSE);
             cv.put("KILL_TIME", KILL_TIME);
-            getWritableDatabase().insert("FRIENDS_SCORE_DATA", null, cv);
+            try
+            {
+                getWritableDatabase().insertOrThrow("FRIENDS_SCORE_DATA", null, cv);
+            }catch (SQLiteConstraintException e){
+
+            }
+            catch (Exception e){
+
+            }
         }
 
+    }
+
+    /**
+     * Insert data into user-friends table
+     *
+     * @param F_ID  facebook id of friend
+     * @param USER_CODE  user code of friend
+     * @return 1 if insertion is OK else 0
+     */
+    public int insertUserFriendsTable(String F_ID, String USER_CODE) {
+        try
+        {
+            ContentValues cv = new ContentValues();
+            cv.put("F_ID", F_ID);
+            cv.put("USER_CODE", USER_CODE);
+            getWritableDatabase().insertOrThrow("USER_FRIENDS_TABLE", null, cv);
+            return 1;
+        } catch (SQLiteConstraintException e)
+        {
+            return 0;
+        }catch (Exception e)
+        {
+            return 0;
+        }
+    }
+
+    /**
+     * Get data of all user code of friends in user-friend table
+     *
+     * @return Cursor of all friends user codes
+     */
+
+    public Cursor getUserCodesFriends()
+    {
+        return getWritableDatabase().query("USER_FRIENDS_TABLE", new String[]{"USER_CODE"}, null, null, null,null, ""+" DESC", null);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
 
     }
-
-    // not null UNIQUE
 }
