@@ -24,8 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -35,15 +35,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import tronbox.QuizzyArena.GetGlobalRank;
+import tronbox.QuizzyArena.InsertUserScore;
 import tronbox.Sounds.AndroidAudio;
 import tronbox.Sounds.Audio;
 import tronbox.controller.QuizzyDatabase;
 import tronbox.social.R;
-import tronbox.social.SelfieSender;
-import tronbox.welcome.InsertUserScore;
-import tronbox.welcome.MasterHomeScreen;
 import tronbox.welcome.QuizzyApplication;
 import tronbox.welcome.SharedPrefrenceStorage;
+import tronbox.welcome.UpdateActivity;
 
 
 public class ScoreActivity extends Activity {
@@ -62,6 +62,9 @@ public class ScoreActivity extends Activity {
     private String Buffer;
     private Audio audio;
     private Boolean bufferPresent = false;
+
+    private String userCode, userName, userFbId, challengerUserCode, challengerName, challengerFbId;
+
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private float kill_time = 0;
 
@@ -75,6 +78,17 @@ public class ScoreActivity extends Activity {
         QuizzyApplication.gameSound.setLooping(true);
         QuizzyApplication.gameSound.play();
 
+
+        Bundle profileInfo = SharedPrefrenceStorage.getProfileInfo(getApplicationContext());
+
+        userCode = SharedPrefrenceStorage.getUserCode(getApplicationContext());
+        userName = profileInfo.getString("Name");
+        userFbId = profileInfo.getString("FacebookId");
+
+        challengerName = QuizzyApplication.challengerName;
+        challengerFbId = QuizzyApplication.challengerFacebookId;
+        challengerUserCode = QuizzyApplication.challengerUserCode;
+
         database = new QuizzyDatabase(getApplicationContext(),"QUIZZY",null,1);
 
         actionBar = getActionBar();
@@ -85,13 +99,11 @@ public class ScoreActivity extends Activity {
         Bundle b = getIntent().getExtras();
         if (b != null) {
 
+
             for(Score s : QuizzyApplication.userScoreList){
 
                 Log.w("AfterUserMessage", s.getScore());
-                kill_time = kill_time + Integer.valueOf(s.getTime());
             }
-
-            kill_time = 10f-(kill_time/10f);
 
 
             for(Score s : QuizzyApplication.challengerList){
@@ -99,8 +111,10 @@ public class ScoreActivity extends Activity {
                 Log.w("AfterChallengerScore", s.getScore());
             }
 
+/*
             p1_name = b.getString("P1_NAME");
             p2_name = b.getString("P2_NAME");
+*/
 
 
             firstPlayerScore = new int[10];
@@ -112,9 +126,13 @@ public class ScoreActivity extends Activity {
                 for (int i = 0; i < QuizzyApplication.userScoreList.size(); i++) {
                     Score c = (Score) QuizzyApplication.userScoreList.get(i);
                     firstPlayerScore[i] = Integer.valueOf(c.getScore());
+                    kill_time = kill_time + Integer.valueOf(c.getTime());
+
                 }
+
             }
 
+            kill_time = 10f-(kill_time/10f);
 
             if(b.containsKey("Buffer")){
 
@@ -144,10 +162,9 @@ public class ScoreActivity extends Activity {
 
                 }
 
-
             }
 
-            else {
+             else {
 
                 if((QuizzyApplication.challengerList != null))
 
@@ -161,12 +178,9 @@ public class ScoreActivity extends Activity {
 
             }
 
-
-
-
             if((b.getString("USER_CODE")!=null) && (b.getString("GAME_CODE")!=null) && (QuizzyApplication.userScoreList != null))
             {
-                //     new ScoreSender(getApplicationContext()).execute(b.getString("USER_CODE"), b.getString("GAME_CODE"), getScoreString(QuizzyApplication.userScoreList));
+           //     new ScoreSender(getApplicationContext()).execute(b.getString("USER_CODE"), b.getString("GAME_CODE"), getScoreString(QuizzyApplication.userScoreList));
             }
 
             if( (b.getString("CATAGORY") != null) && (b.getString("CHAP_ID")!=null) )
@@ -175,60 +189,15 @@ public class ScoreActivity extends Activity {
                 CHAP_ID = b.getString("CHAP_ID");
             }
 
-            if(b.getString("P1_TITLE") != null)
-            {
-
-                //p1_title = b.getString("P1_TITLE");
-
-                p1_title = getp1Title();
-            }
-
-            if(b.getString("P2_TITLE") != null)
-            {
-                p2_title = b.getString("P2_TITLE");
-            }
-
-            if( (b.getString("UserImage") != null) && (b.getString("ChallengerImage")!=null) )
-            {
-                p1_image = b.getString("UserImage");
-                p2_image = b.getString("ChallengerImage");
-            }
-
             database.updateKillTime(CHAP_ID,String.valueOf(kill_time));
 
             init();
 
-
             handler = new Handler();
-            handler.postDelayed(new ProgressController(),300);
-            // handler.post(new ProgressController());
+            handler.postDelayed(new ProgressController(),100);
+           // handler.post(new ProgressController());
         }
 
-    }
-
-    private String getp1Title()
-    {
-        int value = Integer.valueOf(database.getTotalScore(CHAP_ID));
-        if(value <=400)
-        {
-            return "Newbee";
-        }
-        else if(value >400 && value <=800)
-        {
-            return "Hustler";
-        }
-        else if(value >800 && value <=1200)
-        {
-            return "Pro";
-        }
-        else if(value >1200 && value <=1600)
-        {
-            return "Avenger";
-        }
-        else
-        {
-            return "Genius";
-        }
     }
 
     private void initActionBar()
@@ -247,31 +216,29 @@ public class ScoreActivity extends Activity {
         actionBarText.setTypeface(font);
 
 
-        TextView back = (TextView)mCustomView.findViewById(R.id.back);//
-        back.setText("Home");
+        final Button back = (Button)mCustomView.findViewById(R.id.back);//
         back.setTypeface(font);
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), MasterHomeScreen.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+
+                //back.setEnabled(false);
+
+                callHome();
 
             }
         });
-        ImageButton add = (ImageButton) mCustomView.findViewById(R.id.add_ques);
-        add.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_action_camera));
-        add.setOnClickListener(new View.OnClickListener() {
+
+        ((Button)mCustomView.findViewById(R.id.selfie)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
             }
         });
 
-        add.setVisibility(View.VISIBLE);
         actionBar.setDisplayShowCustomEnabled(true);
     }
 
@@ -280,15 +247,14 @@ public class ScoreActivity extends Activity {
         try
         {
             database.updateFullScore(CHAP_ID,String.valueOf(Integer.valueOf(database.getGlobalRank(CHAP_ID))),String.valueOf(player_1_score+Integer.valueOf(database.getTotalScore(CHAP_ID))),String.valueOf(Integer.valueOf(database.getTotalCorrect(CHAP_ID))+CORRECT_QUES),String.valueOf(1+Integer.valueOf(database.getTotalCount(CHAP_ID))));
-
         }catch (Exception e){
 
         }
-
     }
 
     private void init()
     {
+
         int CORRECT_QUES = 0;
         for (int aSecondPlayerScore : secondPlayerScore) {
             player_2_score = player_2_score + aSecondPlayerScore;
@@ -305,9 +271,9 @@ public class ScoreActivity extends Activity {
 
         }
 
+
         //performs the database updations in local database
         databaseOperations(CORRECT_QUES,player_1_score);
-
 
         LEVEL_PROGRESS = Integer.valueOf(database.getTotalScore(CHAP_ID));
 
@@ -340,17 +306,19 @@ public class ScoreActivity extends Activity {
         ((TextView)findViewById(R.id.analytics)).setTypeface(font);
 
         TextView t1 = (TextView)v11.findViewById(R.id.p_name);
-        t1.setText(p1_name);
+        t1.setText(userName);
         t1.setTypeface(font);
+
         TextView t2 = (TextView)v21.findViewById(R.id.p_name);
-        t2.setText(p2_name);
+        t2.setText(challengerName);
         t2.setTypeface(font);
 
         TextView t3 = (TextView)v11.findViewById(R.id.p_title);
-        t3.setText(p1_title);
+        t3.setText("Hustler");
         t3.setTypeface(font);
+
         TextView t4 = (TextView)v21.findViewById(R.id.p_title);
-        t4.setText(p2_title);
+        t4.setText("Avenger");
         t4.setTypeface(font);
 
         level_text = (TextView)findViewById(R.id.level_text);
@@ -395,42 +363,97 @@ public class ScoreActivity extends Activity {
         text.setTypeface(Typeface.createFromAsset(getAssets(),"font1.TTF"));
 
 
-        if( (player_1_score < player_2_score))
-        {
-            text.setText("You Loose !");
-            database.updateLoose(CHAP_ID);
-            ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line));
-            ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#db2121"));//red
-            ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#01e04a"));//green
-        }
-        else if( (player_1_score > player_2_score))
-        {
+            if( (player_1_score < player_2_score))
+            {
 
+                if(bufferPresent == true && Buffer.length() < 19){
 
-            if(bufferPresent == true && Buffer.length() < 19){
+                    text.setText(QuizzyApplication.challengerName+"'s Turn");
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(userFbId+".png"),"#bbbbbb"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(challengerFbId+".png"),"#bbbbbb"));//green
 
-                text.setText(QuizzyApplication.challengerName+"'s Turn");
-                ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
-                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#ffffff"));//red
-                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#ffffff"));//green
+                }else {
 
-            }else{
+                    database.updateLoose(CHAP_ID);
+                    //Log.w("DEMO",p1_image+ " :: "+p2_image);
+                    text.setText("You Loose !");
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(userFbId+".png"),"#01e04a"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(challengerFbId+".png"),"#db2121"));//green
 
-                Log.w("DEMO",p1_image+ " :: "+p2_image);
-                text.setText("You Won !");
-                database.updateWin(CHAP_ID);
-                ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
-                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(p1_image),"#01e04a"));//red
-                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(p2_image),"#db2121"));//green
+                }
             }
-        }
-        Log.w("DANGER",database.getTotalScore(CHAP_ID));
+
+            else if((player_1_score > player_2_score))
+            {
+
+                if(bufferPresent == true && Buffer.length() < 19){
+
+                    text.setText(QuizzyApplication.challengerName+"'s Turn");
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(userFbId+".png"),"#bbbbbb"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(challengerFbId+".png"),"#bbbbbb"));//green
+
+                }else{
+
+                    database.updateWin(CHAP_ID);
+                    //Log.w("DEMO",p1_image+ " :: "+p2_image);
+                    text.setText("You Won !");
+
+                    ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                    ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(userFbId+".png"),"#01e04a"));//red
+                    ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(challengerFbId+".png"),"#db2121"));//green
+
+                }
+
+            }else if( (player_1_score == player_2_score))
+            {
+
+                text.setText("Draw !");
+                ((ImageView)findViewById(R.id.red_green)).setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.red_green_line1));
+                ((ImageView)findViewById(R.id.image_p1)).setImageBitmap(imageCircleClip(getBitmap(userFbId+".png"),"#bbbbbb"));//red
+                ((ImageView)findViewById(R.id.image_p2)).setImageBitmap(imageCircleClip(getBitmap(challengerFbId+".png"),"#bbbbbb"));//green
+
+            }
 
         //sending score data of user
-        new InsertUserScore(getApplicationContext()).execute(SharedPrefrenceStorage.getUserCode(getApplicationContext()),CATAGORY,CHAP_ID,String.valueOf(player_1_score),database.getWin(CHAP_ID),database.getLoose(CHAP_ID),String.valueOf(kill_time),SharedPrefrenceStorage.getDonations(getApplicationContext()),p1_title);
+        new InsertUserScore(getApplicationContext()).execute(SharedPrefrenceStorage.getUserCode(getApplicationContext()),CATAGORY,CHAP_ID,String.valueOf(player_1_score),database.getWin(CHAP_ID),database.getLoose(CHAP_ID),String.valueOf(kill_time),SharedPrefrenceStorage.getDonations(getApplicationContext()),getp1Title());
+
+        new GetGlobalRank(getApplicationContext()).execute(userCode);
 
     }
 
+    private String getp1Title()
+
+    {
+        int value = Integer.valueOf(database.getTotalScore(CHAP_ID));
+
+        if(value <=400)
+        {
+            return "Newbee";
+        }
+
+        else if(value >400 && value <=800)
+        {
+            return "Hustler";
+        }
+
+        else if(value >800 && value <=1200)
+        {
+            return "Pro";
+        }
+
+        else if(value >1200 && value <=1600)
+        {
+            return "Avenger";
+        }
+
+        else
+        {
+            return "Genius";
+        }
+    }
 
     public Bitmap getBitmap(String name){
 
@@ -468,83 +491,83 @@ public class ScoreActivity extends Activity {
         return builder.toString();
     }
 
-    class ProgressController implements Runnable
-    {
-        private boolean textAnimationComplete;
-        private int c;
-        @Override
-        public void run() {
-            count++;
 
-            if(count  <= player_1_score || count  <= player_2_score )
-            {
+class ProgressController implements Runnable
+   {
+       private boolean textAnimationComplete;
+       private int c;
+       @Override
+       public void run() {
+           count++;
 
-                if(count  <= player_1_score)
-                {
-                    p1_score.setText(String.valueOf(count));
-                }
+           if(count  <= player_1_score || count  <= player_2_score )
+           {
 
-                if(bufferPresent){
+               if(count  <= player_1_score)
+               {
+                   p1_score.setText(String.valueOf(count));
+               }
 
-                    if(Buffer.length() > 19){
+               if(bufferPresent){
 
-                        if(count  <= player_2_score)
-                        {
-                            p2_score.setText(String.valueOf(count));
-                        }
+                   if(Buffer.length() > 19){
 
-                    }else{
+                       if(count  <= player_2_score)
+                       {
+                           p2_score.setText(String.valueOf(count));
+                       }
 
-                        p2_score.setText("?");
+                   }else{
 
-                    }
+                       p2_score.setText("?");
 
-                }else {
+                   }
 
-                    if(count  <= player_2_score)
-                    {
-                        p2_score.setText(String.valueOf(count));
-                    }
+               }else {
 
-                }
+                   if(count  <= player_2_score)
+                   {
+                       p2_score.setText(String.valueOf(count));
+                   }
+
+               }
 
 
-                handler.postDelayed(this,2);
-            }
-            else
-            {
-                if(LEVEL_PROGRESS>10)
-                {
-                    c = c + LEVEL_PROGRESS/10;
-                }
-                else
-                {
-                    c++;
-                }
+               handler.postDelayed(this,2);
+           }
+           else
+           {
+               if(LEVEL_PROGRESS>10)
+               {
+                   c = c + LEVEL_PROGRESS/10;
+               }
+               else
+               {
+                   c++;
+               }
 
-                if(!textAnimationComplete)
-                {
-                    textAnimationComplete = true;
-                    handler.post(this);
+               if(!textAnimationComplete)
+               {
+                   textAnimationComplete = true;
+                   handler.post(this);
 
-                }
-                else {
-                    if(c < LEVEL_PROGRESS)
-                    {
-                        bar.setProgress(c);
-                        handler.post(this);
-                    }
-                    //if(c > LEVEL_PROGRESS)
-                    else{
-                        ObjectAnimator.ofFloat(level_text,"alpha",0,1).setDuration(500).start();
-                        level_text.setText("Level "+getLevelOfUser(Integer.valueOf(database.getTotalScore(CHAP_ID))));
-                    }
-                }
+               }
+               else {
+                   if(c < LEVEL_PROGRESS)
+                   {
+                       bar.setProgress(c);
+                       handler.post(this);
+                   }
+                   else{
+                       ObjectAnimator.ofFloat(level_text,"alpha",0,1).setDuration(500).start();
+                       level_text.setText("Level "+getLevelOfUser(Integer.valueOf(database.getTotalScore(CHAP_ID))));
+                   }
+               }
 
-            }
+           }
 
-        }
-    }
+       }
+   }
 
     private int getLevelOfUser(int TOTAL_SCORE)
     {
@@ -671,11 +694,13 @@ public class ScoreActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
+
         if(QuizzyApplication.gameSound.isPlaying() && QuizzyApplication.backGroundSound == true){
 
             QuizzyApplication.gameSound.stop();
         }
 
+        //callHome();
     }
 
     @Override
@@ -688,7 +713,21 @@ public class ScoreActivity extends Activity {
             QuizzyApplication.gameSound.stop();
         }
 
+        callHome();
+
     }
+
+    public void callHome(){
+
+        Intent intent = new Intent(getApplicationContext(), UpdateActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("From_Score", "Home");
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_right);
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -696,21 +735,18 @@ public class ScoreActivity extends Activity {
         if( resultCode == RESULT_OK)
         {
             Bundle extras = data.getExtras();
-            Log.w("DEMO","OK....");
             Bitmap bp = (Bitmap) extras.get("data");
 
-            if(bp==null)
+            if(bp!=null)
+
             {
-                Log.w("DEMO","null");
-            }
-            else
-            {
+
                 try{
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     bp.compress(Bitmap.CompressFormat.JPEG,100,bos);
                     byte[] arry =   bos.toByteArray();
-                    String aryString = Base64.encodeToString(arry,0,arry.length,Base64.DEFAULT);
+                    String aryString = Base64.encodeToString(arry, 0, arry.length, Base64.DEFAULT);
                     new SelfieSender(getApplicationContext()).execute(SharedPrefrenceStorage.getUserCode(getApplicationContext()),aryString);
                 }catch (Exception e){}
             }
