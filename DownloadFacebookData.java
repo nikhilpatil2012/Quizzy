@@ -1,6 +1,7 @@
 package tronbox.social;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.HandlerThread;
@@ -19,11 +20,13 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import tronbox.Logs.ErrorLogs;
 import tronbox.controller.QuizzyDatabase;
 import tronbox.networking.SubjectImagesHandler;
 import tronbox.welcome.SendUserCredentials;
@@ -36,13 +39,12 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
     private SubjectImagesHandler handler;
     private HandlerThread thread;
     private String id = "null", name = "null", pic = "null", location = "null", birthday = "null", gender = "null";
-
     private HashMap<String,String> mapEntries;
-
-
     public DownloadFacebookData(Context context){
         this.context = context;
     }
+
+    private StringBuilder builder = new StringBuilder();
 
     @Override
     protected String doInBackground(String... params) {
@@ -85,8 +87,6 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
                 birthday = master.getString("birthday");
 
                 Log.w("ProfileFacebookBirthDay", birthday);
-
-
 
             }
 
@@ -149,6 +149,8 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
 
                 Log.w("Data Count", ""+data.length());
 
+                int count = 0;
+                int temp1 = 1;
                 for(int i=0; i<=data.length()-1; i++){
 
                     JSONObject info = data.getJSONObject(i);
@@ -157,7 +159,21 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
                     String id = info.getString("id");
                     String pic = info.getJSONObject("picture").getJSONObject("data").getString("url");
 
-                    database.insertFriends(id, name, pic);
+                    temp1 = database.insertFriends(id, name, pic);
+
+                    if(temp1 == 1){
+
+                        if(count == 0){
+
+                            builder.append(id);
+                            count++;
+
+                        }else{
+
+                            builder.append("~").append(id);
+                        }
+
+                    }
 
                     mapEntries.put(id+".png", pic);
 
@@ -183,13 +199,18 @@ public class DownloadFacebookData extends AsyncTask<String, Void, String>{
                 bundle.putString("name", name);
 
                 if(!iterator.hasNext()){
-                    bundle.putString("meta", "FACEBOOK_LAST");
+                    bundle.putString("meta", params[1]);
                 }
 
                 Message message = new Message();
                 message.setData(bundle);
                 handler.sendMessage(message);
 
+            }
+
+            if(builder.length() > 3){
+                Log.w("DANGER",builder.toString());
+                new GetUserCodeWithFbId(context).execute(builder.toString());
             }
 
         }
