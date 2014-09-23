@@ -62,7 +62,16 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         cv.put("CHAP_NAME", CHAP_NAME);
         cv.put("CHAP_IMG_PATH", CHAP_IMG_PATH);
 
-        getWritableDatabase().insert("QUIZDATA", null, cv);
+        try
+        {
+            getWritableDatabase().insertOrThrow("QUIZDATA", null, cv);
+        }catch (SQLiteConstraintException e)
+        {
+
+        }catch (Exception e){
+
+        }
+
     }
 
     public void insertUpdatesSCOREDATA(String CATAGORY,String CATAGORY_NAME,String CHAP_ID,String CHAP_NAME,String GLOBAL_RANK,String TOTAL_SCORE, String CORRECT_QUES, String COUNT) {
@@ -80,7 +89,17 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         cv.put("LOOSE", COUNT);
         cv.put("KILL_TIME", COUNT);
 
-        getWritableDatabase().insert("SCOREDATA", null, cv);
+        try
+        {
+            getWritableDatabase().insertOrThrow("SCOREDATA", null, cv);
+        }catch (SQLiteConstraintException e)
+        {
+
+        }catch (Exception e)
+        {
+
+        }
+
     }
 
     public int insertFriends(String Id, String Name, String Pic){
@@ -378,7 +397,16 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
             cv.put("WIN", WIN);
             cv.put("LOOSE", LOOSE);
             cv.put("KILL_TIME", KILL_TIME);
-            getWritableDatabase().insert("FRIENDS_SCORE_DATA", null, cv);
+            try
+            {
+                getWritableDatabase().insertOrThrow("FRIENDS_SCORE_DATA", null, cv);
+            }catch (SQLiteConstraintException e)
+            {
+
+            }catch (Exception e){
+
+            }
+
         }
 
     }
