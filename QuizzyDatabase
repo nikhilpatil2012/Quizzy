@@ -1,8 +1,9 @@
-package tronbox.controller;
+package ideapot.controller;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -21,28 +22,34 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         String dataTable="create table QUIZDATA( "
                 + "id"
                 + " integer primary key autoincrement,"
-                + "CATAGORY text,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text , CHAP_NAME text, CHAP_IMG_PATH text); ";
+                + "CATAGORY text ,CATAGORY_NAME text,CATAGORY_IMG_PATH text,CHAP_ID text not null UNIQUE, CHAP_NAME text not null UNIQUE, CHAP_IMG_PATH text); ";
 
         String scoreTable="create table SCOREDATA("
                 + "id"
                 + " integer primary key autoincrement,"
-                + "CATAGORY text,CATAGORY_NAME text,CHAP_ID text not null UNIQUE,CHAP_NAME text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, COUNT text,WIN text,LOOSE text,KILL_TIME text); ";
+                + "CATAGORY text,CATAGORY_NAME text,CHAP_ID text not null UNIQUE,CHAP_NAME text,GLOBAL_RANK text,TOTAL_SCORE text,CORRECT_QUES text, COUNT text, WIN text,LOOSE text,KILL_TIME text); ";
 
 
         String friendsTable = "create table FRIENDSDATA("
                 + "id"
                 + " integer primary key autoincrement,"
-                + "Uid text not null UNIQUE, Name text,Pic text); ";
+                + "Uid text not null UNIQUE, Name text, Pic text not null UNIQUE); ";
 
         String friendsScoreTable = "create table FRIENDS_SCORE_DATA("
+                +                 "id"
+                +                 " integer primary key autoincrement,"
+                +                 "USER_CODE text,CHAP_ID text,GLOBAL_RANK text,TOTAL_SCORE text,WIN text,LOOSE text,KILL_TIME text,TAG text); ";
+
+        String user_friends_Table="create table USER_FRIENDS_TABLE("
                 + "id"
                 + " integer primary key autoincrement,"
-                + "USER_CODE text,CHAP_ID text,GLOBAL_RANK text,TOTAL_SCORE text,WIN text,LOOSE text,KILL_TIME text,TAG text); ";
+                + "F_ID text not null UNIQUE,USER_CODE text); ";
 
         db.execSQL(dataTable);
         db.execSQL(scoreTable);
         db.execSQL(friendsTable);
         db.execSQL(friendsScoreTable);
+        db.execSQL(user_friends_Table);
 
     }
 
@@ -60,7 +67,6 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 
     public void insertUpdatesSCOREDATA(String CATAGORY,String CATAGORY_NAME,String CHAP_ID,String CHAP_NAME,String GLOBAL_RANK,String TOTAL_SCORE, String CORRECT_QUES, String COUNT) {
         ContentValues cv = new ContentValues();
-
         cv.put("CATAGORY", CATAGORY);
         cv.put("CATAGORY_NAME", CATAGORY_NAME);
         cv.put("CHAP_ID", CHAP_ID);
@@ -69,6 +75,7 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         cv.put("TOTAL_SCORE", TOTAL_SCORE);
         cv.put("CORRECT_QUES", CORRECT_QUES);
         cv.put("COUNT", COUNT);
+
         cv.put("WIN", COUNT);
         cv.put("LOOSE", COUNT);
         cv.put("KILL_TIME", COUNT);
@@ -76,16 +83,30 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         getWritableDatabase().insert("SCOREDATA", null, cv);
     }
 
-    public void insertFriends(String Id, String Name, String Pic){
+    public int insertFriends(String Id, String Name, String Pic){
 
         ContentValues cv = new ContentValues();
         cv.put("Uid", Id);
         cv.put("Name", Name);
         cv.put("Pic", Pic);
 
-        getWritableDatabase().insert("FRIENDSDATA", null, cv);
+        try {
+
+            getWritableDatabase().insertOrThrow("FRIENDSDATA", null, cv);
+            return 1;
+
+        }catch (SQLiteConstraintException ex){return 0;}
+        catch (Exception ex){return 0;}
 
     }
+
+
+    public String getUserNameAndWithFBId()
+    {
+
+        return null;
+    }
+
 
     public boolean updateTotalScore(String CHAP_ID, String TOTAL_SCORE) {
 
@@ -95,7 +116,6 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         c.close();
         ContentValues args = new ContentValues();
         args.put("TOTAL_SCORE", TOTAL_SCORE);
-
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
@@ -143,16 +163,6 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
     }
 
-    public boolean updateKillTime(String CHAP_ID, String KILL_TIME) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rowId = c.getString(0);
-        c.close();
-        ContentValues args = new ContentValues();
-        args.put("KILL_TIME", KILL_TIME);
-        return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
-    }
-
     public boolean updateWin(String CHAP_ID) {
         try
         {
@@ -181,95 +191,7 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         }catch (Exception e){
             return false;
         }
-   }
-
-    public Cursor getDataSCOREDATA(String CHAP_ID) {
-        Log.w("ChapterID", CHAP_ID);
-        Cursor c = getWritableDatabase().query( "SCOREDATA", null,"CHAP_ID"+"=?", new String[] { CHAP_ID }, null,null, null, null);
-        return c;
     }
-
-
-
-    public String getWin(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("WIN"));
-        c.close();
-        return rank;
-    }
-
-    public String getLoose(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("LOOSE"));
-        c.close();
-        return rank;
-    }
-
-    public String getGlobalRank(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("GLOBAL_RANK"));
-        c.close();
-        return rank;
-    }
-
-
-    public String getTotalScore(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("TOTAL_SCORE"));
-        c.close();
-        return rank;
-    }
-
-    public String getTotalCount(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("COUNT"));
-        c.close();
-        return rank;
-    }
-
-
-    public Cursor getFriendsList() {
-
-        Cursor c = getWritableDatabase().rawQuery("select * from FRIENDSDATA", null);
-
-        return c;
-    }
-
-
-    public Cursor getUpdatesQUIZDATA() {
-
-        Cursor c = getWritableDatabase().rawQuery("select * from QUIZDATA", null);
-
-        return c;
-    }
-
-
-    public Cursor getListOfChaptersInCatagory(String CATAGORY_VAL)
-    {
-        return getWritableDatabase().query("QUIZDATA",new String[]{"CATAGORY","CATAGORY_NAME"   ,"CHAP_ID","CHAP_NAME"},"CATAGORY "+"=?",new String[]{CATAGORY_VAL},null,null,null,null);
-    }
-
-
-    public Cursor getUpdatesSCOREDATA() {
-
-        Cursor c = getWritableDatabase().rawQuery("select * from SCOREDATA", null);
-
-        return c;
-    }
-
-    public String getTotalCorrect(String CHAP_ID) {
-        Cursor c = getDataSCOREDATA( CHAP_ID);
-        c.moveToFirst();
-        String rank = c.getString(c.getColumnIndex("CORRECT_QUES"));
-        c.close();
-        return rank;
-    }
-
 
     public String getScoreTotalAllCatagory()
     {
@@ -303,8 +225,13 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
         }
         c.close();
 
+        try{
 
-        score = score/c1;
+            score = score/c1;
+
+        }catch (ArithmeticException ex){}
+        catch (Exception ex){}
+
 
 
         if(score<=400)
@@ -456,8 +383,204 @@ public class QuizzyDatabase extends SQLiteOpenHelper {
 
     }
 
-public String getUserCode(String F_ID) {
+
+    public Cursor getDataSCOREDATA(String CHAP_ID) {
+        Log.w("ChapterID", CHAP_ID);
+        Cursor c = getWritableDatabase().query( "SCOREDATA", null,"CHAP_ID"+"=?", new String[] { CHAP_ID }, null,null, null, null);
+        return c;
+    }
+
+
+
+    public String getGlobalRank(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("GLOBAL_RANK"));
+        c.close();
+        return rank;
+    }
+
+    public String getTotalScore(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("TOTAL_SCORE"));
+        c.close();
+        return rank;
+    }
+
+    public String getTotalCount(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("COUNT"));
+        c.close();
+        return rank;
+    }
+
+
+    public Cursor getFriendsList() {
+
+        Cursor c = getWritableDatabase().rawQuery("select * from FRIENDSDATA", null);
+
+        return c;
+    }
+
+
+    public Cursor getUpdatesQUIZDATA() {
+
+        Cursor c = getWritableDatabase().rawQuery("select * from QUIZDATA", null);
+
+        return c;
+    }
+
+
+    public Cursor getListOfChaptersInCatagory(String CATAGORY_VAL)
+    {
+        return getWritableDatabase().query("QUIZDATA",new String[]{"CATAGORY","CATAGORY_NAME","CHAP_ID","CHAP_NAME"},"CATAGORY "+"=?",new String[]{CATAGORY_VAL},null,null,"CHAP_ID"+" DESC",null);
+    }
+
+    public Cursor getListOfChapters(){
+
+        return getWritableDatabase().query("QUIZDATA",new String[]{"CATAGORY","CATAGORY_NAME"},null,null,null,null,"CATAGORY"+" DESC",null);
+    }
+
+    public Cursor getUpdatesSCOREDATA() {
+
+        Cursor c = getWritableDatabase().rawQuery("select * from SCOREDATA", null);
+
+        return c;
+    }
+
+
+
+
+    public String getTotalCorrect(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("CORRECT_QUES"));
+        c.close();
+        return rank;
+    }
+
+    public boolean updateKillTime(String CHAP_ID, String KILL_TIME) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rowId = c.getString(0);
+        c.close();
+        ContentValues args = new ContentValues();
+        args.put("KILL_TIME", KILL_TIME);
+        return getWritableDatabase().update("SCOREDATA", args, "id='"+rowId+"'", null) > 0;
+    }
+
+
+    public String getWin(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("WIN"));
+        c.close();
+        return rank;
+    }
+
+    public String getLoose(String CHAP_ID) {
+        Cursor c = getDataSCOREDATA( CHAP_ID);
+        c.moveToFirst();
+        String rank = c.getString(c.getColumnIndex("LOOSE"));
+        c.close();
+        return rank;
+    }
+
+    /**
+     * Insert data into user-friends table
+     *
+     * @param F_ID  facebook id of friend
+     * @param USER_CODE  user code of friend
+     * @return 1 if insertion is OK else 0
+     */
+    public int insertUserFriendsTable(String F_ID, String USER_CODE) {
+        try
+        {
+            ContentValues cv = new ContentValues();
+            cv.put("F_ID", F_ID);
+            cv.put("USER_CODE", USER_CODE);
+            getWritableDatabase().insertOrThrow("USER_FRIENDS_TABLE", null, cv);
+            return 1;
+        } catch (SQLiteConstraintException e)
+        {
+            return 0;
+        }catch (Exception e)
+        {
+            return 0;
+        }
+    }
+
+    /**
+     * Get data of all user code of friends in user-friend table
+     *
+     * @return Cursor of all friends user codes
+     */
+
+    public Cursor getUserCodesFriends()
+    {
+        return getWritableDatabase().query("USER_FRIENDS_TABLE", new String[]{"USER_CODE"}, null, null, null,null, null, null);
+    }
+
+    public Cursor getFBIdFriends()
+    {
+        return getWritableDatabase().query("USER_FRIENDS_TABLE", new String[]{"F_ID"}, null, null, null,null, null, null);
+    }
+
+    public String getUserCode(String F_ID) {
         Cursor c = getWritableDatabase().query( "USER_FRIENDS_TABLE", new String[]{"USER_CODE"},"F_ID"+"=?", new String[] { F_ID }, null,null, null, null);
+        try
+        {
+            if(c.moveToFirst())
+            {
+                return c.getString(0);
+            }
+            else
+            {
+                return "null";
+            }
+        }finally {
+            c.close();
+        }
+    }
+
+    public String getFBIdWithUserCode(String USER_CODE) {
+        Cursor c = getWritableDatabase().query( "USER_FRIENDS_TABLE", new String[]{"F_ID"},"USER_CODE"+"=?", new String[] { USER_CODE }, null,null, null, null);
+        try
+        {
+            if(c.moveToFirst())
+            {
+                return c.getString(0);
+            }
+            else
+            {
+                return "null";
+            }
+        }finally {
+            c.close();
+        }
+    }
+
+    public String getNamedWithFbID(String FB_ID) {
+        Cursor c = getWritableDatabase().query( "FRIENDSDATA", new String[]{"Name"},"Uid"+"=?", new String[] { FB_ID }, null,null, null, null);
+        try
+        {
+            if(c.moveToFirst())
+            {
+                return c.getString(0);
+            }
+            else
+            {
+                return "null";
+            }
+        }finally {
+            c.close();
+        }
+    }
+
+    public String getTotalScoreFriendsScoreData(String USER_CODE,String CHAP_ID) {
+        Cursor c = getWritableDatabase().query( "FRIENDS_SCORE_DATA", new String[]{"TOTAL_SCORE"},"USER_CODE=? AND CHAP_ID=?", new String[] { USER_CODE, CHAP_ID }, null,null, null, null);
         try
         {
             if(c.moveToFirst())
@@ -472,8 +595,13 @@ public String getUserCode(String F_ID) {
             c.close();
         }
     }
+    public Cursor getFullRecordScoreFriendsScoreData(String USER_CODE,String CHAP_ID) {
+        return getWritableDatabase().query( "FRIENDS_SCORE_DATA", null,"USER_CODE=? AND CHAP_ID=?", new String[] { USER_CODE, CHAP_ID }, null,null, null, null);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+
 
     }
 
