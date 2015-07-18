@@ -10,7 +10,9 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.AndroidHttpTransport;
 
+import tronbox.arena.DownloadFreshQuestions;
 import tronbox.controller.QuizzyDatabase;
+import tronbox.welcome.QuizzyApplication;
 
 public class GetUserCodeWithFbId extends AsyncTask<String,Void,String>{
 
@@ -23,6 +25,7 @@ public class GetUserCodeWithFbId extends AsyncTask<String,Void,String>{
     private String MethodName = "get_list_of_social_media_user";
     private String result ="";
     private Context context;
+    private String value = null;
 
     public GetUserCodeWithFbId(Context context)
     {
@@ -73,20 +76,30 @@ public class GetUserCodeWithFbId extends AsyncTask<String,Void,String>{
 
         weightProp1.setType(String.class);
         weightProp1.setName("source_name");
-        weightProp1.setValue(params[0]);
+        weightProp1.setValue("FB");
 
         weightProp2.setType(String.class);
         weightProp2.setName("source_list");
-        weightProp2.setValue(params[1]);
+        weightProp2.setValue(params[0]);
 
         request.addProperty(weightProp1);
         request.addProperty(weightProp2);
+
+
+        if(params.length>1)
+        {
+            value = params[1];
+        }
+/*
+        if(params[1] != null){
+
+        }*/
     }
 
     @Override
     protected void onPostExecute(String s) {
         // decode server response and store it into database
-            decodeResponseAndStoreInDatabase(s);
+        decodeResponseAndStoreInDatabase(s);
     }
 
     @Override
@@ -106,10 +119,11 @@ public class GetUserCodeWithFbId extends AsyncTask<String,Void,String>{
             for(int i=0;i<data.length;i++)
             {
                 temp = data[i].split("~");
-                if(database.insertUserFriendsTable(temp[0],temp[1]) == 1){
+                int data1 = database.insertUserFriendsTable(temp[0],temp[1]);
+                if(data1 == 1){
                     if(i==0)
                     {
-                          builder.append(temp[1]);
+                        builder.append(temp[1]);
                     }
                     else
                     {
@@ -117,12 +131,29 @@ public class GetUserCodeWithFbId extends AsyncTask<String,Void,String>{
                     }
                 }
             }
-            Log.w("DANGER","Result :: "+builder.toString().length());
         }catch (Exception e){
 
         }
         finally {
+
+            if(value != null && value.equals("mole")){
+
+                String data = database.getUserCode(QuizzyApplication.challengerFacebookId);
+
+                if(!data.equals("null")){
+
+                    Log.w("Mole", "Executed");
+
+                    QuizzyApplication.challengerUserCode = data;
+
+                    new DownloadFreshQuestions(context).execute(QuizzyApplication.SubjectCode,QuizzyApplication.ChapterCode, data);
+
+                }
+
+            }
+
             database.close();
         }
+
     }
 }
