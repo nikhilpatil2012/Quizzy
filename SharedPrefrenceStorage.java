@@ -14,17 +14,20 @@ public class SharedPrefrenceStorage {
         return context.getSharedPreferences("Quizzy", Context.MODE_PRIVATE);
     }
 
+    public static String getUserName(Context context){
+        return initialize(context).getString("Name","");
+    }
     public static void StoreProfileInfo(Context context, String FirstName, String FacebookId, String UserLocation, String UserDob, String gender) {
 
-        SharedPreferences.Editor editor = initialize(context).edit();
-        editor.putString("Name", FirstName);
-        editor.putString("FacebookId", FacebookId);
-        editor.putBoolean("Login", true);
-        editor.putString("Location", UserLocation);
-        editor.putString("Dob", UserDob);
-        editor.putString("Gender", gender);
+         SharedPreferences.Editor editor = initialize(context).edit();
+         editor.putString("Name", FirstName);
+         editor.putString("FacebookId", FacebookId);
+         editor.putBoolean("Login", true);
+         editor.putString("Location", UserLocation);
+         editor.putString("Dob", UserDob);
+         editor.putString("Gender", gender);
 
-        editor.commit();
+         editor.commit();
 
         ErrorLogs.PARSE_ERRORS(ErrorLogs.SharedPrefrenceLog, "PROFILE DATA SUCCESSFULLY STORED IN THE SHARED_PREFRENCE "+getUserCode(context));
     }
@@ -78,7 +81,6 @@ public class SharedPrefrenceStorage {
         bundle.putString("Dob", preferences.getString("Dob", ""));
         bundle.putString("Gender", preferences.getString("Gender", ""));
 
-
         return  bundle;
     }
 
@@ -90,30 +92,12 @@ public class SharedPrefrenceStorage {
 
     }
 
-    public static String getDonations(Context context){
-         return initialize(context).getString("Donation","0");
-    }
-
-    public static void storeDonations(Context context, String numberOfRecords){
-        SharedPreferences.Editor editor = initialize(context).edit();
-        editor.putString("Donation", String.valueOf(Integer.valueOf(numberOfRecords) + Integer.valueOf(initialize(context).getString("Donation","0"))));
-        editor.commit();
-    }
-
-    public static void storeGlobalRank(Context context, String globalRank){
-        SharedPreferences.Editor editor = initialize(context).edit();
-        editor.putString("G_RANK", globalRank);
-        editor.commit();
-    }
-
-    public static String getGlobalRank(Context context){
-        SharedPreferences preferences = initialize(context);
-        return preferences.getString("G_RANK", "0");
-    }
-
     public static String getUserCode(Context context){
+
         SharedPreferences preferences = initialize(context);
+
         return preferences.getString("UserCode", "");
+
     }
 
     public static String getUserFacebookId(Context context){
@@ -149,6 +133,39 @@ public class SharedPrefrenceStorage {
         return initialize(context).getInt("State", 0);
     }
 
+    public static void storeActivityState(Context context, int state){
 
 
+        SharedPreferences.Editor editor = initialize(context).edit();
+        editor.putInt("Activity_State", state);
+        editor.commit();
+
+    }
+
+    public static int getActivityState(Context context){
+
+
+        return initialize(context).getInt("Activity_State", 0);
+    }
+
+    public static String getDonations(Context context){
+        return initialize(context).getString("Donation","0");
+    }
+
+    public static void storeDonations(Context context, String numberOfRecords){
+                SharedPreferences.Editor editor = initialize(context).edit();
+                editor.putString("Donation", String.valueOf(Integer.valueOf(numberOfRecords) + Integer.valueOf(initialize(context).getString("Donation","0"))));
+                editor.commit();
+            }
+
+    public static void storeGlobalRank(Context context, String globalRank){
+        SharedPreferences.Editor editor = initialize(context).edit();
+        editor.putString("G_RANK", globalRank);
+        editor.commit();
+    }
+
+    public static String getGlobalRank(Context context){
+        SharedPreferences preferences = initialize(context);
+        return preferences.getString("G_RANK", "0");
+    }
 }
